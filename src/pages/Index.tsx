@@ -44,6 +44,27 @@ const Index = () => {
     },
   ];
 
+  const successStories = [
+    {
+      title: "Tech Startup Success",
+      client: "InnovateTech Africa",
+      description: "Helped scale operations across three African countries with custom software solutions.",
+      impact: "300% growth in first year",
+    },
+    {
+      title: "Sustainable Agriculture",
+      client: "GreenHarvest Ltd",
+      description: "Implemented smart farming solutions that revolutionized local farming practices.",
+      impact: "50% increase in crop yield",
+    },
+    {
+      title: "Energy Innovation",
+      client: "SolarPower Solutions",
+      description: "Facilitated expansion into rural markets with off-grid energy solutions.",
+      impact: "10,000+ households connected",
+    },
+  ];
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -91,6 +112,25 @@ const Index = () => {
             <Button variant="outline" className="hover-lift">
               Learn More About Us
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Success Stories Section */}
+      <section className="py-20 px-4 bg-gray-50">
+        <div className="container">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 animate-on-scroll">
+            Success Stories
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {successStories.map((story, index) => (
+              <Card key={story.title} className="p-6 hover-lift animate-on-scroll">
+                <h3 className="text-xl font-semibold mb-2">{story.title}</h3>
+                <p className="text-sm text-brand-green mb-4">{story.client}</p>
+                <p className="text-muted-foreground mb-4">{story.description}</p>
+                <p className="font-semibold text-brand-green">{story.impact}</p>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

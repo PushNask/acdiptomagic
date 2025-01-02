@@ -12,7 +12,6 @@ import ChatBot from "@/components/shared/ChatBot";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
-import SuccessStories from "./pages/SuccessStories";
 import Blog from "./pages/Blog";
 import Resources from "./pages/Resources";
 import Contact from "./pages/Contact";
@@ -31,7 +30,6 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/services" element={<Services />} />
-                <Route path="/success-stories" element={<SuccessStories />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/contact" element={<Contact />} />
