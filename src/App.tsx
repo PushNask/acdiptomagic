@@ -12,6 +12,10 @@ import ChatBot from "@/components/shared/ChatBot";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
+import StartupBooster from "./pages/StartupBooster";
+import EnterpriseGrowth from "./pages/EnterpriseGrowth";
+import SustainabilityFocus from "./pages/SustainabilityFocus";
+import BusinessIncorporation from "./pages/BusinessIncorporation";
 import Blog from "./pages/Blog";
 import Resources from "./pages/Resources";
 import Contact from "./pages/Contact";
@@ -30,6 +34,10 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/services" element={<Services />} />
+                <Route path="/services/startup-booster" element={<StartupBooster />} />
+                <Route path="/services/enterprise-growth" element={<EnterpriseGrowth />} />
+                <Route path="/services/sustainability-focus" element={<SustainabilityFocus />} />
+                <Route path="/services/business-incorporation" element={<BusinessIncorporation />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/contact" element={<Contact />} />
