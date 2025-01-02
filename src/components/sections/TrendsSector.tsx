@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, Tooltip } from "recharts";
 import { TrendingUp, Zap, Leaf, Building2, Heart, ShoppingBag, Wallet, Plane, GraduationCap, Router } from "lucide-react";
 
 const sectorGrowthData = [
@@ -50,9 +50,23 @@ const TrendsSector = () => {
               <BarChart data={sectorGrowthData}>
                 <XAxis dataKey="sector" />
                 <YAxis />
-                <ChartTooltip>
-                  <ChartTooltipContent />
-                </ChartTooltip>
+                <Tooltip 
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-background border border-border p-2 rounded-lg shadow-lg">
+                          <p className="font-semibold">{label}</p>
+                          {payload.map((entry) => (
+                            <p key={entry.name} style={{ color: entry.color }}>
+                              {entry.name}: {entry.value}%
+                            </p>
+                          ))}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
                 <Bar dataKey="growth" fill="#2E7D32" name="Current Growth" />
                 <Bar dataKey="projected" fill="#FFC107" name="Projected Growth" />
               </BarChart>
@@ -66,9 +80,23 @@ const TrendsSector = () => {
               <LineChart data={yearlyTrendData}>
                 <XAxis dataKey="year" />
                 <YAxis />
-                <ChartTooltip>
-                  <ChartTooltipContent />
-                </ChartTooltip>
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-background border border-border p-2 rounded-lg shadow-lg">
+                          <p className="font-semibold">{label}</p>
+                          {payload.map((entry) => (
+                            <p key={entry.name} style={{ color: entry.color }}>
+                              {entry.name}: {entry.value}%
+                            </p>
+                          ))}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
                 <Line 
                   type="monotone" 
                   dataKey="value" 
