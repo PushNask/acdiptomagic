@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Globe, Rocket, Leaf, Building } from "lucide-react";
+import TrendsSector from "@/components/sections/TrendsSector";
 
 const Index = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -115,6 +116,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Add Trends Section here */}
+      <TrendsSector />
 
       {/* Success Stories Section */}
       <section className="py-20 px-4 bg-gray-50">
