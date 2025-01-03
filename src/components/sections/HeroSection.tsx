@@ -12,14 +12,9 @@ const HeroSection = () => {
           <p className="text-xl mb-8 text-gray-300 animate-fade-in">
             Your trusted partner for business consulting, tech solutions, and incorporation services—tailored to Africa's unique opportunities.
           </p>
-          <div className="space-x-4">
-            <Button asChild className="animate-fade-in">
-              <Link to="/services">Explore Our Services</Link>
-            </Button>
-            <Button asChild variant="outline" className="animate-fade-in">
-              <Link to="/contact">Get a Quote</Link>
-            </Button>
-          </div>
+          <Button asChild className="animate-fade-in">
+            <Link to="/services">Explore Our Services</Link>
+          </Button>
         </div>
       </div>
     </div>

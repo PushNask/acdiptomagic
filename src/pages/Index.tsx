@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import HeroSection from "@/components/sections/HeroSection";
 import ServicesGrid from "@/components/sections/ServicesGrid";
 import TrendsSector from "@/components/sections/TrendsSector";
+import SuccessStories from "@/components/sections/SuccessStories";
 
 const Index = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -28,6 +29,7 @@ const Index = () => {
     <div className="min-h-screen">
       <HeroSection />
       <ServicesGrid />
+      <SuccessStories />
       <TrendsSector />
     </div>
   );
