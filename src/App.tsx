@@ -16,6 +16,7 @@ import StartupBooster from "./pages/StartupBooster";
 import EnterpriseGrowth from "./pages/EnterpriseGrowth";
 import SustainabilityFocus from "./pages/SustainabilityFocus";
 import BusinessIncorporation from "./pages/BusinessIncorporation";
+import TrainingAdvisory from "./pages/TrainingAdvisory";
 import Blog from "./pages/Blog";
 import Resources from "./pages/Resources";
 import Contact from "./pages/Contact";
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/services/enterprise-growth" element={<EnterpriseGrowth />} />
                 <Route path="/services/sustainability-focus" element={<SustainabilityFocus />} />
                 <Route path="/services/business-incorporation" element={<BusinessIncorporation />} />
+                <Route path="/services/training-advisory" element={<TrainingAdvisory />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/contact" element={<Contact />} />
