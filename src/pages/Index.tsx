@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Globe, Rocket, Leaf, Building } from "lucide-react";
+import { Globe, Rocket, Leaf, Building, GraduationCap } from "lucide-react";
 import TrendsSector from "@/components/sections/TrendsSector";
 
 const Index = () => {
@@ -42,6 +42,11 @@ const Index = () => {
       icon: <Globe className="h-6 w-6" />,
       title: "Global Reach",
       description: "Business incorporation services in Africa and USA",
+    },
+    {
+      icon: <GraduationCap className="h-6 w-6" />,
+      title: "Training & Advisory",
+      description: "Expert coaching and mentoring for startups and SMEs",
     },
   ];
 
