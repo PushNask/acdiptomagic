@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     strictPort: true,
     cors: {
-      origin: "*", // Be more restrictive in production
+      origin: "*",
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true
