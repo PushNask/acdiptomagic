@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf, Sun, Sprout, BarChart3 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Leaf, Sun, Sprout, BarChart3, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const SustainabilityFocus = () => {
   const services = [
@@ -8,124 +10,107 @@ const SustainabilityFocus = () => {
       icon: <Sun className="h-6 w-6" />,
       title: "Energy & Off-Grid Projects",
       description: "Solar solutions, mini-grid management, and comprehensive feasibility studies.",
+      features: ["Solar Solutions", "Mini-Grid Systems", "Feasibility Studies", "Energy Optimization"],
     },
     {
       icon: <Sprout className="h-6 w-6" />,
       title: "Sustainable Agriculture",
       description: "Smart farming technologies, supply chain optimization, and farm-to-market strategies.",
+      features: ["Smart Farming", "Supply Chain", "Market Access", "Tech Integration"],
     },
   ];
 
-  const impactMetrics = [
-    {
-      metric: "50,000+",
-      label: "Tons of CO2 Reduced",
-    },
-    {
-      metric: "10,000+",
-      label: "Households Connected",
-    },
-    {
-      metric: "500+",
-      label: "Farmers Empowered",
-    },
-    {
-      metric: "30%",
-      label: "Average Yield Increase",
-    },
+  const stats = [
+    { icon: <Sun className="h-8 w-8" />, value: "50K+", label: "Tons CO2 Reduced" },
+    { icon: <Sprout className="h-8 w-8" />, value: "10K+", label: "Farmers Empowered" },
+    { icon: <BarChart3 className="h-8 w-8" />, value: "30%", label: "Yield Increase" },
   ];
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn">
-          Sustainability Focus
-        </h1>
-        <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fadeIn" style={{ animationDelay: "0.2s" }}>
-          Championing sustainability through innovative energy and agriculture solutions.
-        </p>
-        <Button size="lg" className="animate-fadeIn hover-lift" style={{ animationDelay: "0.4s" }}>
-          Explore Solutions
-        </Button>
+      <section className="relative bg-brand-green text-white py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30" variant="secondary">
+            Sustainability Focus
+          </Badge>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn">
+            Building a Sustainable Future
+          </h1>
+          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
+            Innovative energy and agriculture solutions for a greener, more resilient Africa.
+          </p>
+          <Link to="/contact">
+            <Button size="lg" variant="secondary" className="hover-lift">
+              Start Your Project
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="flex flex-col items-center text-center p-6 rounded-lg bg-gray-50">
+                <div className="text-brand-green mb-3">{stat.icon}</div>
+                <div className="text-3xl font-bold mb-2">{stat.value}</div>
+                <div className="text-muted-foreground">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Services Grid */}
-      <section className="mb-20">
-        <h2 className="text-3xl font-bold text-center mb-12 animate-on-scroll">
-          Our Services
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {services.map((service) => (
-            <Card key={service.title} className="hover-lift animate-on-scroll">
-              <CardHeader>
-                <div className="text-brand-green mb-4">{service.icon}</div>
-                <CardTitle>{service.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{service.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Impact Metrics */}
-      <section className="mb-20">
-        <h2 className="text-3xl font-bold text-center mb-12 animate-on-scroll">
-          Our Impact
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {impactMetrics.map((item) => (
-            <Card key={item.label} className="text-center p-6 hover-lift animate-on-scroll">
-              <h3 className="text-3xl font-bold text-brand-green mb-2">{item.metric}</h3>
-              <p className="text-muted-foreground">{item.label}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Success Story */}
-      <section className="mb-20 bg-secondary/30 rounded-lg p-8">
-        <h2 className="text-3xl font-bold text-center mb-12 animate-on-scroll">
-          Success Story
-        </h2>
-        <div className="max-w-2xl mx-auto">
-          <Card className="animate-on-scroll">
-            <CardHeader>
-              <CardTitle>Rural Electrification Project</CardTitle>
-              <p className="text-brand-green">SolarPower Solutions</p>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Implemented solar-powered mini-grids in 15 rural communities, providing reliable electricity to over 10,000 households and enabling local businesses to thrive.
-              </p>
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-brand-green">40%</p>
-                  <p className="text-sm text-muted-foreground">Cost Reduction</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-brand-green">24/7</p>
-                  <p className="text-sm text-muted-foreground">Power Availability</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Sustainable Solutions</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Driving positive environmental impact through innovative energy and agriculture solutions.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {services.map((service) => (
+              <Card key={service.title} className="h-full hover-lift">
+                <CardHeader>
+                  <div className="text-brand-green mb-4">{service.icon}</div>
+                  <CardTitle>{service.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-6">{service.description}</p>
+                  <ul className="space-y-2">
+                    {service.features.map((feature, index) => (
+                      <li key={index} className="flex items-center text-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand-green mr-2" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="text-center bg-brand-green text-white rounded-lg p-12">
-        <h2 className="text-3xl font-bold mb-6 animate-on-scroll">
-          Join Us in Building a Sustainable Future
-        </h2>
-        <p className="text-lg mb-8 opacity-90 animate-on-scroll">
-          Let's create sustainable solutions that benefit both communities and the environment.
-        </p>
-        <Button variant="secondary" size="lg" className="hover-lift animate-on-scroll">
-          Start Your Project
-        </Button>
+      <section className="py-16 bg-brand-green text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-6">Ready to Make an Impact?</h2>
+          <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
+            Join us in building a greener, more sustainable Africa.
+          </p>
+          <Link to="/contact">
+            <Button variant="secondary" size="lg" className="hover-lift">
+              Start Your Project
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
       </section>
     </div>
   );
