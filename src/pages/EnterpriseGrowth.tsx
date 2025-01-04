@@ -39,10 +39,10 @@ const EnterpriseGrowth = () => {
           <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30" variant="secondary">
             Enterprise Growth
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn max-w-3xl">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn text-[#0EA5E9] max-w-3xl">
             Scale Your Enterprise to New Heights
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn leading-relaxed" style={{ animationDelay: "0.2s" }}>
+          <p className="text-xl md:text-2xl text-[#0EA5E9] mb-8 max-w-2xl animate-fadeIn leading-relaxed" style={{ animationDelay: "0.2s" }}>
             Strategic market expansion and cutting-edge tech solutions for sustainable growth.
           </p>
           <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
@@ -54,6 +54,7 @@ const EnterpriseGrowth = () => {
         </div>
       </section>
 
+      {/* Stats Section */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

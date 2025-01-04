@@ -1,48 +1,42 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Rocket, Target, Users, BarChart, ArrowRight } from "lucide-react";
+import { Rocket, Target, Users, BarChart3, ArrowRight } from "lucide-react";
 
 const StartupBooster = () => {
   const services = [
     {
       icon: <Target className="h-6 w-6" />,
       title: "Business Plan Development",
-      description: "Comprehensive market analysis, financial forecasting, and strategic positioning for your venture.",
+      description: "Market analysis, financial forecasting, branding strategy.",
       features: ["Market Analysis", "Financial Modeling", "Strategic Planning", "Risk Assessment"],
     },
     {
       icon: <Users className="h-6 w-6" />,
       title: "Market Research",
-      description: "In-depth competitor assessments, target demographics analysis, and go-to-market strategy.",
+      description: "Competitor assessments, target demographics, go-to-market strategy.",
       features: ["Competitor Analysis", "Customer Insights", "Market Trends", "Entry Strategy"],
-    },
-    {
-      icon: <Rocket className="h-6 w-6" />,
-      title: "Prototype Development",
-      description: "MVP design, technical architecture guidance, and iterative user testing for tech startups.",
-      features: ["MVP Design", "Tech Architecture", "User Testing", "Iteration Plans"],
     },
   ];
 
   const stats = [
     { icon: <Target className="h-8 w-8" />, value: "90%", label: "Success Rate" },
     { icon: <Users className="h-8 w-8" />, value: "200+", label: "Startups Launched" },
-    { icon: <BarChart className="h-8 w-8" />, value: "$10M+", label: "Funding Secured" },
+    { icon: <BarChart3 className="h-8 w-8" />, value: "$10M+", label: "Funding Secured" },
   ];
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-brand-green text-white py-16 md:py-24">
+      <section className="relative bg-gradient-to-b from-gray-900 to-gray-800 py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30" variant="secondary">
+          <Badge className="mb-4 bg-white/20 hover:bg-white/30" variant="secondary">
             Startup Booster
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn text-[#0EA5E9] max-w-3xl">
             Launch Your Startup with Confidence
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
+          <p className="text-xl md:text-2xl text-[#0EA5E9] mb-8 max-w-2xl animate-fadeIn leading-relaxed">
             Expert guidance and solid foundation for your entrepreneurial journey.
           </p>
           <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
@@ -54,7 +48,6 @@ const StartupBooster = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

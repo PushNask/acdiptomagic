@@ -28,15 +28,15 @@ const BusinessIncorporation = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-brand-green text-white py-16 md:py-24">
+      <section className="relative bg-gradient-to-b from-gray-900 to-gray-800 py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30" variant="secondary">
+          <Badge className="mb-4 bg-white/20 hover:bg-white/30" variant="secondary">
             Business Incorporation
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn text-[#0EA5E9] max-w-3xl">
             Establish Your Business with Confidence
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
+          <p className="text-xl md:text-2xl text-[#0EA5E9] mb-8 max-w-2xl animate-fadeIn leading-relaxed">
             Seamless incorporation services in Africa and the USA—your gateway to global markets.
           </p>
           <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">

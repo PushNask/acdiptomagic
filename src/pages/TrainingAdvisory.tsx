@@ -45,7 +45,7 @@ const TrainingAdvisory = () => {
           <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30" variant="secondary">
             Training & Advisory
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn text-[#0EA5E9]">
             Transform Your Business Potential
           </h1>
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
