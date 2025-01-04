@@ -34,19 +34,19 @@ const EnterpriseGrowth = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-brand-green text-white py-16 md:py-24">
+      <section className="relative bg-gradient-to-b from-gray-900 to-gray-800 text-white py-16 md:py-24">
         <div className="container mx-auto px-4">
           <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30" variant="secondary">
             Enterprise Growth
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fadeIn max-w-3xl">
             Scale Your Enterprise to New Heights
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
+          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn leading-relaxed" style={{ animationDelay: "0.2s" }}>
             Strategic market expansion and cutting-edge tech solutions for sustainable growth.
           </p>
           <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
-            <Button size="lg" variant="secondary" className="hover-lift">
+            <Button size="lg" variant="secondary" className="hover:shadow-lg transition-shadow duration-300">
               Explore Solutions
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
