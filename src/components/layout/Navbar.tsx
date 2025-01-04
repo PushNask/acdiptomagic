@@ -25,8 +25,15 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="text-2xl font-bold text-brand-green">
-            AcDiToPush
+          <Link to="/" className="flex items-center space-x-2">
+            <img 
+              src="/lovable-uploads/8abf0d9c-c6d7-4363-bde4-5e837e00d0ef.png" 
+              alt="AcDiToPush Logo" 
+              className="h-8 w-auto"
+            />
+            <span className="text-2xl font-bold" style={{ color: '#1E88E5' }}>
+              AcDiTo<span style={{ color: '#F97316' }}>Push</span>
+            </span>
           </Link>
 
           {/* Desktop Menu */}
@@ -35,7 +42,7 @@ const Navbar = () => {
               <div key={item.path} className="relative group">
                 <Link
                   to={item.path}
-                  className="text-gray-600 hover:text-brand-green transition-colors"
+                  className="text-gray-600 hover:text-brand-blue transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -56,7 +63,19 @@ const Navbar = () => {
                 )}
               </div>
             ))}
-            <Button variant="default">Get a Quote</Button>
+            <a 
+              href="https://calendly.com/mbeh" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex"
+            >
+              <Button 
+                variant="default" 
+                className="bg-brand-orange hover:bg-brand-orange/90 text-white"
+              >
+                Get a Quote
+              </Button>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -77,7 +96,7 @@ const Navbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="text-gray-600 hover:text-brand-green transition-colors"
+                  className="text-gray-600 hover:text-brand-blue transition-colors"
                   onClick={() => setIsOpen(false)}
                 >
                   {item.label}
@@ -89,16 +108,26 @@ const Navbar = () => {
                   <Link
                     key={subItem.path}
                     to={subItem.path}
-                    className="block text-sm text-gray-600 hover:text-brand-green transition-colors"
+                    className="block text-sm text-gray-600 hover:text-brand-blue transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     {subItem.label}
                   </Link>
                 ))}
               </div>
-              <Button variant="default" className="w-full">
-                Get a Quote
-              </Button>
+              <a 
+                href="https://calendly.com/mbeh" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex"
+              >
+                <Button 
+                  variant="default" 
+                  className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white"
+                >
+                  Get a Quote
+                </Button>
+              </a>
             </div>
           </div>
         )}

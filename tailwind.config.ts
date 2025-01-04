@@ -25,11 +25,11 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "#1E88E5", // AcDiTo blue
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
+          DEFAULT: "#F97316", // Push orange
           foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
@@ -53,8 +53,8 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         brand: {
-          green: "#2E7D32",
-          gold: "#FFC107",
+          blue: "#1E88E5",
+          orange: "#F97316",
         },
       },
       borderRadius: {
