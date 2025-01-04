@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { RocketLaunch, Target, Users, ChartBar, ArrowRight } from "lucide-react";
+import { Rocket, Target, Users, BarChart, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const StartupBooster = () => {
@@ -19,7 +19,7 @@ const StartupBooster = () => {
       features: ["Competitor Analysis", "Customer Insights", "Market Trends", "Entry Strategy"],
     },
     {
-      icon: <RocketLaunch className="h-6 w-6" />,
+      icon: <Rocket className="h-6 w-6" />,
       title: "Prototype Development",
       description: "MVP design, technical architecture guidance, and iterative user testing for tech startups.",
       features: ["MVP Design", "Tech Architecture", "User Testing", "Iteration Plans"],
@@ -29,7 +29,7 @@ const StartupBooster = () => {
   const stats = [
     { icon: <Target className="h-8 w-8" />, value: "90%", label: "Success Rate" },
     { icon: <Users className="h-8 w-8" />, value: "200+", label: "Startups Launched" },
-    { icon: <ChartBar className="h-8 w-8" />, value: "$10M+", label: "Funding Secured" },
+    { icon: <BarChart className="h-8 w-8" />, value: "$10M+", label: "Funding Secured" },
   ];
 
   return (
