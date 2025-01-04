@@ -26,11 +26,6 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/8abf0d9c-c6d7-4363-bde4-5e837e00d0ef.png" 
-              alt="AcDiToPush Logo" 
-              className="h-8 w-auto"
-            />
             <span className="text-2xl font-bold" style={{ color: '#1E88E5' }}>
               AcDiTo<span style={{ color: '#F97316' }}>Push</span>
             </span>
