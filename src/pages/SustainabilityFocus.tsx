@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Leaf, Sun, Sprout, BarChart3, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const SustainabilityFocus = () => {
   const services = [
@@ -40,12 +39,12 @@ const SustainabilityFocus = () => {
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
             Innovative energy and agriculture solutions for a greener, more resilient Africa.
           </p>
-          <Link to="/contact">
+          <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="hover-lift">
               Start Your Project
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -104,12 +103,12 @@ const SustainabilityFocus = () => {
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
             Join us in building a greener, more sustainable Africa.
           </p>
-          <Link to="/contact">
+          <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
             <Button variant="secondary" size="lg" className="hover-lift">
-              Start Your Project
+              Get Started Today
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
     </div>

@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Users, Handshake, BookOpen, ArrowRight, Target, Award } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const TrainingAdvisory = () => {
   const services = [
@@ -50,14 +49,14 @@ const TrainingAdvisory = () => {
             Transform Your Business Potential
           </h1>
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
-            Expert training and advisory services to empower your team and drive sustainable business growth in Africa.
+            Expert training and advisory services to empower your team and drive sustainable business growth.
           </p>
-          <Link to="/contact">
+          <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="hover-lift">
               Schedule a Consultation
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -116,12 +115,12 @@ const TrainingAdvisory = () => {
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
             Join our training programs or schedule a consultation to discuss your business needs.
           </p>
-          <Link to="/contact">
+          <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
             <Button variant="secondary" size="lg" className="hover-lift">
               Get Started Today
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
     </div>

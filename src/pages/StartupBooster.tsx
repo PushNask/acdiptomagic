@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Rocket, Target, Users, BarChart, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const StartupBooster = () => {
   const services = [
@@ -44,14 +43,14 @@ const StartupBooster = () => {
             Launch Your Startup with Confidence
           </h1>
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
-            Expert guidance and support to transform your vision into a thriving business reality.
+            Expert guidance and solid foundation for your entrepreneurial journey.
           </p>
-          <Link to="/contact">
+          <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="hover-lift">
               Start Your Journey
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -108,14 +107,14 @@ const StartupBooster = () => {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Launch Your Startup?</h2>
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
-            Join our startup booster program and turn your vision into reality.
+            Book a consultation with our startup experts and begin your success story.
           </p>
-          <Link to="/contact">
+          <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
             <Button variant="secondary" size="lg" className="hover-lift">
-              Book a Strategy Session
+              Book Consultation
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
     </div>

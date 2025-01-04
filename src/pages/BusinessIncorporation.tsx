@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Globe, FileCheck, Landmark, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const BusinessIncorporation = () => {
   const services = [
@@ -40,12 +39,12 @@ const BusinessIncorporation = () => {
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl animate-fadeIn" style={{ animationDelay: "0.2s" }}>
             Seamless incorporation services in Africa and the USA—your gateway to global markets.
           </p>
-          <Link to="/contact">
+          <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="hover-lift">
               Start Incorporating
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -130,12 +129,12 @@ const BusinessIncorporation = () => {
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
             Book a consultation with our legal and business experts today.
           </p>
-          <Link to="/contact">
+          <a href="https://calendly.com/mbeh" target="_blank" rel="noopener noreferrer">
             <Button variant="secondary" size="lg" className="hover-lift">
-              Book Consultation
+              Get a Quote
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
     </div>
