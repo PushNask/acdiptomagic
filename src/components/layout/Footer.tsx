@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Footer = () => {
@@ -15,6 +15,17 @@ const Footer = () => {
             <p className="text-gray-400 mb-4">
               Empowering Africa's Growth Through Business and Technology
             </p>
+            <div className="flex items-center gap-2 mb-4">
+              <Phone size={16} className="text-gray-400" />
+              <div className="flex flex-col">
+                <a href="tel:+18328570043" className="text-gray-400 hover:text-white transition-colors">
+                  USA: +1 832 857 0043
+                </a>
+                <a href="tel:+237671154588" className="text-gray-400 hover:text-white transition-colors">
+                  CMR: +237 671 154 588
+                </a>
+              </div>
+            </div>
             <div className="flex space-x-4">
               <a href="#" className="hover:text-brand-green transition-colors">
                 <Linkedin size={20} />
