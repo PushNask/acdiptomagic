@@ -20,6 +20,7 @@ import TrainingAdvisory from "./pages/TrainingAdvisory";
 import Blog from "./pages/Blog";
 import Resources from "./pages/Resources";
 import Contact from "./pages/Contact";
+import Invoice from "./pages/Invoice";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/invoice" element={<Invoice />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
