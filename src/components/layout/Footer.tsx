@@ -66,6 +66,11 @@ const Footer = () => {
                   Resources
                 </Link>
               </li>
+              <li>
+                <Link to="/invoice" className="text-gray-400 hover:text-white transition-colors">
+                  Get Invoice
+                </Link>
+              </li>
             </ul>
           </div>
 
