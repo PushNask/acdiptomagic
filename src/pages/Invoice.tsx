@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 const Invoice = () => {
+  const { toast } = useToast();
   const [invoiceData, setInvoiceData] = useState({
     clientName: "",
     clientEmail: "",
@@ -20,7 +21,37 @@ const Invoice = () => {
     setInvoiceData({ ...invoiceData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    if (!invoiceData.clientName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter client name",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!invoiceData.clientEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter client email",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!invoiceData.amount.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter amount",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const generateInvoice = () => {
+    if (!validateForm()) return;
+
     const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
     const date = new Date().toLocaleDateString();
     
@@ -93,7 +124,10 @@ const Invoice = () => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    toast.success("Invoice generated successfully!");
+    toast({
+      title: "Success",
+      description: "Invoice generated successfully!",
+    });
   };
 
   return (
@@ -163,7 +197,6 @@ const Invoice = () => {
           <Button 
             className="w-full"
             onClick={generateInvoice}
-            disabled={!invoiceData.clientName || !invoiceData.amount}
           >
             Generate Invoice
           </Button>
