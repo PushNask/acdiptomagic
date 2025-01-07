@@ -1,50 +1,15 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, LogIn, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import type { User } from '@supabase/supabase-js';
+import { useAuth } from "@/contexts/AuthContext";
 import { MainNav } from "./navigation/MainNav";
 import MobileNav from "./navigation/MobileNav";
 import { UserNav } from "./navigation/UserNav";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [userType, setUserType] = useState<string | null>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserType(session.user.id);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserType(session.user.id);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchUserType = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('user_type')
-      .eq('id', userId)
-      .single();
-    setUserType(data?.user_type ?? null);
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
+  const { user } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b">
@@ -59,28 +24,7 @@ const Navbar = () => {
           <MainNav />
 
           <div className="hidden md:flex items-center space-x-2">
-            {user ? (
-              <UserNav />
-            ) : (
-              <>
-                <Button 
-                  variant="ghost"
-                  onClick={() => navigate("/login")}
-                  className="flex items-center"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
-                <Button 
-                  variant="default"
-                  onClick={() => navigate("/signup")}
-                  className="bg-brand-orange hover:bg-brand-orange/90 text-white flex items-center"
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Sign Up
-                </Button>
-              </>
-            )}
+            <UserNav />
           </div>
 
           <button
@@ -96,7 +40,6 @@ const Navbar = () => {
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
           isAuthenticated={!!user}
-          onSignOut={handleSignOut}
         />
       </div>
     </nav>

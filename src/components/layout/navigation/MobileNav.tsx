@@ -1,26 +1,32 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
   isAuthenticated: boolean;
-  onSignOut: () => void;
 }
 
-const MobileNav = ({ isOpen, onClose, isAuthenticated, onSignOut }: MobileNavProps) => {
+const MobileNav = ({ isOpen, onClose, isAuthenticated }: MobileNavProps) => {
+  const { signOut } = useAuth();
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      onClose();
+      toast.success('Signed out successfully');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast.error('Error signing out');
+    }
+  };
+
   const menuItems = [
     { label: "Home", path: "/" },
     { label: "About", path: "/about" },
     { label: "Services", path: "/services" },
     { label: "Resources", path: "/resources" },
-  ];
-
-  const servicesSubmenu = [
-    { label: "Startup Booster", path: "/services/startup-booster" },
-    { label: "Enterprise Growth", path: "/services/enterprise-growth" },
-    { label: "Sustainability Focus", path: "/services/sustainability-focus" },
-    { label: "Business Incorporation", path: "/services/business-incorporation" },
-    { label: "Training & Advisory", path: "/services/training-advisory" },
   ];
 
   if (!isOpen) return null;
@@ -38,38 +44,13 @@ const MobileNav = ({ isOpen, onClose, isAuthenticated, onSignOut }: MobileNavPro
             {item.label}
           </Link>
         ))}
-        {/* Mobile Services Submenu */}
-        <div className="pl-4 space-y-2">
-          {servicesSubmenu.map((subItem) => (
-            <Link
-              key={subItem.path}
-              to={subItem.path}
-              className="block text-sm text-gray-600 hover:text-brand-blue transition-colors"
-              onClick={onClose}
-            >
-              {subItem.label}
-            </Link>
-          ))}
-        </div>
         {isAuthenticated ? (
-          <>
-            <Link
-              to="/dashboard"
-              className="text-gray-600 hover:text-brand-blue transition-colors"
-              onClick={onClose}
-            >
-              Dashboard
-            </Link>
-            <button
-              className="text-left text-gray-600 hover:text-brand-blue transition-colors"
-              onClick={() => {
-                onSignOut();
-                onClose();
-              }}
-            >
-              Sign Out
-            </button>
-          </>
+          <button
+            className="text-left text-gray-600 hover:text-brand-blue transition-colors"
+            onClick={handleSignOut}
+          >
+            Sign Out
+          </button>
         ) : (
           <div className="flex flex-col space-y-2">
             <Link

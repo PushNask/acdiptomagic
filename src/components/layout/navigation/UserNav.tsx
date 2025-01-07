@@ -1,10 +1,8 @@
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -48,11 +46,8 @@ export function UserNav() {
           Account
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem>Profile</DropdownMenuItem>
-        <DropdownMenuItem>Settings</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>
+      <DropdownMenuContent align="end" className="w-[200px] bg-white">
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
