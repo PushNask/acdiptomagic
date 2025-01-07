@@ -14,10 +14,21 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="author" content="AcDiToPush" />
     <meta name="robots" content="index, follow" />
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e.target.src && e.target.src.includes('gptengineer.js')) {
+          console.warn('GPT Engineer script failed to load, continuing without it');
+        }
+      }, true);
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script 
+      src="https://cdn.gpteng.co/gptengineer.js" 
+      type="module"
+      onerror="console.warn('GPT Engineer script failed to load, continuing without it')"
+    ></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
