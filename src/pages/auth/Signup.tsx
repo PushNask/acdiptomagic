@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, Lock, User } from "lucide-react";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
+import { toast } from "sonner";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    confirmPassword: "",
     fullName: "",
     phoneNumber: "",
     userType: "",
@@ -35,6 +37,13 @@ const Signup = () => {
     setLoading(true);
     setError("");
 
+    // Validate password match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signUp({
         email: formData.email,
@@ -49,6 +58,7 @@ const Signup = () => {
       });
 
       if (error) throw error;
+      toast.success("Account created successfully! Please check your email to verify your account.");
       navigate("/dashboard");
     } catch (error: any) {
       setError(error.message);
@@ -140,6 +150,22 @@ const Signup = () => {
                   type="password"
                   placeholder="Create a password"
                   value={formData.password}
+                  onChange={handleChange}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
                   onChange={handleChange}
                   className="pl-10"
                   required
