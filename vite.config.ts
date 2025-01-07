@@ -12,7 +12,9 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       clientPort: 443,
       protocol: 'wss',
-      host: 'localhost'
+      path: '/',
+      timeout: 30000,
+      overlay: true
     }
   },
   preview: {
