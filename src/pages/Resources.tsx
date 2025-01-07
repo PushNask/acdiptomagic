@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { FileDown, Book, PresentationIcon, ChartBar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface Resource {
   id: string;
@@ -15,34 +16,41 @@ interface Resource {
   category: string;
 }
 
+const fetchResources = async () => {
+  const { data, error } = await supabase
+    .from('resources')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error details:', error);
+    throw error;
+  }
+
+  return data || [];
+};
+
 const Resources = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
+  const { data: resources = [], isError, error } = useQuery({
+    queryKey: ['resources'],
+    queryFn: fetchResources,
+    retry: 1,
+  });
+
   useEffect(() => {
-    fetchResources();
-  }, []);
-
-  const fetchResources = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('resources')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setResources(data || []);
-    } catch (error) {
-      console.error('Error fetching resources:', error);
+    if (isError && error instanceof Error) {
       toast({
         title: "Error",
         description: "Failed to load resources. Please try again later.",
         variant: "destructive",
       });
+      console.error('Error fetching resources:', error);
     }
-  };
+  }, [isError, error, toast]);
 
   const handleBuyClick = (resource: Resource) => {
     setSelectedResource(resource);
@@ -78,7 +86,7 @@ const Resources = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {categories.map((category, index) => (
-          <Card key={index} className="hover-lift">
+          <Card key={index} className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader>
               <div className="p-3 bg-primary/10 rounded-full w-fit mb-4">
                 {category.icon}
