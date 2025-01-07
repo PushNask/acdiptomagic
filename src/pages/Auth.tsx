@@ -76,45 +76,7 @@ const Auth = () => {
               }}
               providers={[]}
               redirectTo={window.location.origin}
-              localization={{
-                variables: {
-                  sign_up: {
-                    email_label: "Email",
-                    password_label: "Password",
-                    button_label: "Sign Up",
-                    loading_button_label: "Signing up...",
-                    social_provider_text: "Sign in with {{provider}}",
-                    link_text: "Don't have an account? Sign up",
-                    confirmation_text: "Check your email for the confirmation link",
-                  },
-                },
-              }}
-              extendSignUpFields={[
-                {
-                  name: "full_name",
-                  label: "Full Name",
-                  type: "text",
-                  required: true,
-                },
-                {
-                  name: "phone_number",
-                  label: "Phone Number",
-                  type: "tel",
-                  required: true,
-                },
-                {
-                  name: "user_type",
-                  label: "I am a",
-                  type: "select",
-                  options: [
-                    { label: "Startup", value: "startup" },
-                    { label: "SME", value: "sme" },
-                    { label: "Investor", value: "investor" },
-                    { label: "Student", value: "student" },
-                  ],
-                  required: true,
-                },
-              ]}
+              onError={handleError}
             />
           </CardContent>
         </Card>
