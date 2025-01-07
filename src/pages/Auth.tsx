@@ -5,20 +5,11 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    userType: "startup"
-  });
 
   useEffect(() => {
     // Check if user is already logged in
@@ -85,8 +76,6 @@ const Auth = () => {
               }}
               providers={[]}
               redirectTo={window.location.origin}
-              view={isSignUp ? "sign_up" : "sign_in"}
-              onViewChange={(view) => setIsSignUp(view === "sign_up")}
               localization={{
                 variables: {
                   sign_up: {

@@ -70,7 +70,9 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          phone_number: string | null
           updated_at: string | null
+          user_type: string | null
         }
         Insert: {
           company_logo?: string | null
@@ -79,7 +81,9 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          phone_number?: string | null
           updated_at?: string | null
+          user_type?: string | null
         }
         Update: {
           company_logo?: string | null
@@ -88,7 +92,9 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          phone_number?: string | null
           updated_at?: string | null
+          user_type?: string | null
         }
         Relationships: []
       }
