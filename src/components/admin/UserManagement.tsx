@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const UserManagement = () => {
-  const { data: users, isLoading } = useQuery({
+  const { data: users, isLoading, error } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -24,6 +26,9 @@ const UserManagement = () => {
       if (error) throw error;
       return data;
     },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to load users');
+    },
   });
 
   if (isLoading) {
@@ -31,6 +36,16 @@ const UserManagement = () => {
       <div className="flex justify-center p-4">
         <Loader2 className="h-6 w-6 animate-spin" />
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>
+          Failed to load users. Please try again later.
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -62,6 +77,13 @@ const UserManagement = () => {
               </TableCell>
             </TableRow>
           ))}
+          {!users?.length && (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-4">
+                No users found
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>
