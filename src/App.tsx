@@ -23,7 +23,6 @@ import TrainingAdvisory from "./pages/TrainingAdvisory";
 import Blog from "./pages/Blog";
 import Resources from "./pages/Resources";
 import Contact from "./pages/Contact";
-import Invoice from "./pages/Invoice";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -122,11 +121,6 @@ const App = () => {
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/invoice" element={
-                  <ProtectedRoute>
-                    <Invoice />
                   </ProtectedRoute>
                 } />
                 <Route path="/admin" element={

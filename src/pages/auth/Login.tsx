@@ -62,8 +62,8 @@ const Login = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="max-w-md w-full">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
