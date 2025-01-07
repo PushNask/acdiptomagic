@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -10,11 +11,13 @@ interface MobileNavProps {
 
 const MobileNav = ({ isOpen, onClose, isAuthenticated }: MobileNavProps) => {
   const { signOut } = useAuth();
+  const navigate = useNavigate();
   
   const handleSignOut = async () => {
     try {
       await signOut();
       onClose();
+      navigate('/', { replace: true });
       toast.success('Signed out successfully');
     } catch (error) {
       console.error('Error signing out:', error);

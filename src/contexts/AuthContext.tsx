@@ -86,10 +86,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       setProfile(null);
       setIsAdmin(false);
-      toast.success('Signed out successfully');
     } catch (error) {
       console.error('Error signing out:', error);
-      toast.error('Error signing out');
+      throw error; // Re-throw to handle in the components
     }
   };
 
