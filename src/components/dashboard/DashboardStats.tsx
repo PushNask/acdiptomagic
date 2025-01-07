@@ -4,37 +4,63 @@ import { FileText, Headphones, Calendar, AlertCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const DashboardStats = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const { data: stats, isLoading, error } = useQuery({
     queryKey: ['dashboard-stats', isAdmin],
     queryFn: async () => {
-      if (isAdmin) {
-        const [users, resources, purchases] = await Promise.all([
-          supabase.from('profiles').select('count').single(),
-          supabase.from('resources').select('count').single(),
-          supabase.from('user_purchases').select('count').single(),
-        ]);
-        
-        return {
-          totalUsers: users.data?.count || 0,
-          totalResources: resources.data?.count || 0,
-          totalPurchases: purchases.data?.count || 0,
-        };
-      } else {
-        const { data: userStats } = await supabase
-          .from('user_purchases')
-          .select('*')
-          .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+      console.log('Fetching dashboard stats for:', isAdmin ? 'admin' : 'user');
+      
+      try {
+        if (isAdmin) {
+          const [users, resources, purchases] = await Promise.all([
+            supabase.from('profiles').select('count').single(),
+            supabase.from('resources').select('count').single(),
+            supabase.from('user_purchases').select('count').single(),
+          ]);
+          
+          if (users.error) throw users.error;
+          if (resources.error) throw resources.error;
+          if (purchases.error) throw purchases.error;
 
-        return {
-          downloads: userStats?.length || 0,
-          supportTickets: 0, // Future implementation
-          consultations: 0, // Future implementation
-        };
+          console.log('Admin stats fetched successfully');
+          return {
+            totalUsers: users.data?.count || 0,
+            totalResources: resources.data?.count || 0,
+            totalPurchases: purchases.data?.count || 0,
+          };
+        } else {
+          const { data: userStats, error: statsError } = await supabase
+            .from('user_purchases')
+            .select('*')
+            .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+
+          if (statsError) throw statsError;
+
+          console.log('User stats fetched successfully');
+          return {
+            downloads: userStats?.length || 0,
+            supportTickets: 0,
+            consultations: 0,
+          };
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+        throw error;
       }
     },
+    meta: {
+      errorMessage: 'Failed to load dashboard statistics'
+    }
   });
+
+  React.useEffect(() => {
+    if (error) {
+      console.error('Dashboard stats error:', error);
+      toast.error('Error loading dashboard statistics');
+    }
+  }, [error]);
 
   if (isLoading) {
     return (

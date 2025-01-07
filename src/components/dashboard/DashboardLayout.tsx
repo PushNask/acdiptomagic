@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "./DashboardSidebar";
 import { useUser } from '@supabase/auth-helpers-react';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -10,6 +13,54 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const user = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
+
+        if (!session) {
+          console.log('No active session found, redirecting to login');
+          navigate('/login');
+          return;
+        }
+
+        // Verify profile exists
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Profile fetch error:', profileError);
+          throw profileError;
+        }
+
+        if (!profile) {
+          console.error('No profile found for user:', session.user.id);
+          toast.error('User profile not found');
+          await supabase.auth.signOut();
+          navigate('/login');
+          return;
+        }
+
+        console.log('User authenticated and profile loaded successfully');
+      } catch (error) {
+        console.error('Dashboard authentication error:', error);
+        toast.error('Error loading dashboard');
+        navigate('/login');
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   if (!user) {
     return (
