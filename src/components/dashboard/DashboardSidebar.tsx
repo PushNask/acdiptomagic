@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -7,9 +7,9 @@ import {
   Headphones, 
   UserCircle, 
   LogOut,
-  Download
+  Download,
+  Menu
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -39,48 +39,50 @@ const DashboardSidebar = () => {
   ];
 
   return (
-    <Sidebar>
+    <Sidebar className="border-r border-gray-200">
       <div className="flex h-full flex-col">
-        <div className="p-4">
+        <div className="p-4 border-b">
           <Link to="/" className="flex items-center space-x-2">
             <img 
               src="/lovable-uploads/d9c87483-f0cd-452d-830f-7b426cf762ef.png" 
               alt="AcDiToPush Logo" 
               className="h-8 w-auto"
             />
-            <span className="text-xl font-bold">AcDiToPush</span>
+            <span className="text-xl font-bold hidden md:inline">AcDiToPush</span>
           </Link>
         </div>
         <SidebarContent>
-          <nav className="space-y-2 px-2">
+          <nav className="space-y-1 px-2 py-4">
             {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
                   location.pathname === item.path
                     ? 'bg-primary text-white'
                     : 'hover:bg-gray-100'
                 }`}
               >
                 <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
+                <span className="hidden md:inline">{item.label}</span>
               </Link>
             ))}
           </nav>
         </SidebarContent>
-        <div className="mt-auto p-4">
+        <div className="mt-auto p-4 border-t">
           <Button
             variant="ghost"
             className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
             onClick={handleSignOut}
           >
-            <LogOut className="mr-2 h-5 w-5" />
-            Sign Out
+            <LogOut className="h-5 w-5 md:mr-2" />
+            <span className="hidden md:inline">Sign Out</span>
           </Button>
         </div>
       </div>
-      <SidebarTrigger className="absolute right-4 top-4 lg:hidden" />
+      <SidebarTrigger className="absolute right-4 top-4 lg:hidden">
+        <Menu className="h-6 w-6" />
+      </SidebarTrigger>
     </Sidebar>
   );
 };

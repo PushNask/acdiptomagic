@@ -13,7 +13,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   if (!user) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center p-4">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
@@ -21,9 +21,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex flex-col md:flex-row w-full">
         <DashboardSidebar />
-        <main className="flex-1 p-8 bg-gray-50">{children}</main>
+        <main className="flex-1 p-4 md:p-8 bg-gray-50 w-full overflow-x-hidden">
+          {children}
+        </main>
       </div>
     </SidebarProvider>
   );
