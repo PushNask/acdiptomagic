@@ -22,16 +22,19 @@ const UserNav = ({ onSignOut, userType }: UserNavProps) => {
           Account
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem asChild>
-          <Link to={userType === 'admin' ? "/admin" : "/dashboard"}>
-            Dashboard
-          </Link>
+          <Link to="/dashboard" className="w-full">Dashboard</Link>
         </DropdownMenuItem>
+        {userType === 'admin' && (
+          <DropdownMenuItem asChild>
+            <Link to="/admin" className="w-full">Admin Dashboard</Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
-          <Link to="/invoice">Invoices</Link>
+          <Link to="/invoice" className="w-full">Invoices</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onSignOut}>
+        <DropdownMenuItem onClick={onSignOut} className="text-red-600">
           <LogOut className="w-4 h-4 mr-2" />
           Sign Out
         </DropdownMenuItem>
