@@ -4,9 +4,9 @@ import { Menu, X, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
-import MainNav from "./navigation/MainNav";
+import { MainNav } from "./navigation/MainNav";
 import MobileNav from "./navigation/MobileNav";
-import UserNav from "./navigation/UserNav";
+import { UserNav } from "./navigation/UserNav";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +60,7 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center space-x-2">
             {user ? (
-              <UserNav onSignOut={handleSignOut} userType={userType} />
+              <UserNav />
             ) : (
               <>
                 <Button 
