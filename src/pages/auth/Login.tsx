@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import type { AuthError } from "@supabase/supabase-js";
+import type { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -53,6 +54,22 @@ const Login = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const getErrorMessage = (error: AuthError) => {
+    if (error instanceof AuthApiError) {
+      switch (error.status) {
+        case 400:
+          return 'Invalid email or password';
+        case 422:
+          return 'Email not confirmed';
+        case 401:
+          return 'Invalid credentials';
+        default:
+          return error.message;
+      }
+    }
+    return 'An unexpected error occurred';
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -62,9 +79,9 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gray-50">
       <div className="max-w-md w-full">
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
               Welcome to AcDiToPush

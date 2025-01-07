@@ -12,6 +12,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ChatBot from "@/components/shared/ChatBot";
 
+// Page imports
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -31,6 +32,35 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const queryClient = new QueryClient();
 
+interface AuthLayoutProps {
+  children: React.ReactNode;
+}
+
+// AuthLayout component to handle authentication pages without footer
+const AuthLayout = ({ children }: AuthLayoutProps) => {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-1">
+        {children}
+      </main>
+    </div>
+  );
+};
+
+// MainLayout component for pages with footer
+const MainLayout = ({ children }: AuthLayoutProps) => {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1 pt-16">
+        {children}
+      </main>
+      <Footer />
+      <ChatBot />
+    </div>
+  );
+};
+
 // Protected Route wrapper component
 const ProtectedRoute = ({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -38,48 +68,46 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check current auth status
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        setProfile(profileData);
       }
-    });
+      setLoading(false);
+    };
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        setProfile(profileData);
       } else {
-        setLoading(false);
+        setProfile(null);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      if (error) throw error;
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (!user) {
@@ -98,44 +126,99 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <TooltipProvider>
-          <div className="min-h-screen flex flex-col">
-            <Navbar />
-            <main className="flex-1 pt-16">
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/services/startup-booster" element={<StartupBooster />} />
-                <Route path="/services/enterprise-growth" element={<EnterpriseGrowth />} />
-                <Route path="/services/sustainability-focus" element={<SustainabilityFocus />} />
-                <Route path="/services/business-incorporation" element={<BusinessIncorporation />} />
-                <Route path="/services/training-advisory" element={<TrainingAdvisory />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
+          <Routes>
+            {/* Auth routes without footer */}
+            <Route path="/login" element={
+              <AuthLayout>
+                <Login />
+              </AuthLayout>
+            } />
+            <Route path="/signup" element={
+              <AuthLayout>
+                <Signup />
+              </AuthLayout>
+            } />
 
-                {/* Protected routes */}
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin" element={
-                  <ProtectedRoute adminOnly>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } />
+            {/* Protected routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Dashboard />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute adminOnly>
+                <MainLayout>
+                  <AdminDashboard />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
 
-                {/* Catch all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-            <ChatBot />
-          </div>
+            {/* Public routes */}
+            <Route path="/" element={
+              <MainLayout>
+                <Index />
+              </MainLayout>
+            } />
+            <Route path="/about" element={
+              <MainLayout>
+                <About />
+              </MainLayout>
+            } />
+            <Route path="/services" element={
+              <MainLayout>
+                <Services />
+              </MainLayout>
+            } />
+            <Route path="/services/startup-booster" element={
+              <MainLayout>
+                <StartupBooster />
+              </MainLayout>
+            } />
+            <Route path="/services/enterprise-growth" element={
+              <MainLayout>
+                <EnterpriseGrowth />
+              </MainLayout>
+            } />
+            <Route path="/services/sustainability-focus" element={
+              <MainLayout>
+                <SustainabilityFocus />
+              </MainLayout>
+            } />
+            <Route path="/services/business-incorporation" element={
+              <MainLayout>
+                <BusinessIncorporation />
+              </MainLayout>
+            } />
+            <Route path="/services/training-advisory" element={
+              <MainLayout>
+                <TrainingAdvisory />
+              </MainLayout>
+            } />
+            <Route path="/blog" element={
+              <MainLayout>
+                <Blog />
+              </MainLayout>
+            } />
+            <Route path="/resources" element={
+              <MainLayout>
+                <Resources />
+              </MainLayout>
+            } />
+            <Route path="/contact" element={
+              <MainLayout>
+                <Contact />
+              </MainLayout>
+            } />
+
+            {/* Catch all route */}
+            <Route path="*" element={
+              <MainLayout>
+                <NotFound />
+              </MainLayout>
+            } />
+          </Routes>
           <Toaster />
           <Sonner />
         </TooltipProvider>

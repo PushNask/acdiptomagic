@@ -10,12 +10,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Mail, Lock, User } from "lucide-react";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
 import { toast } from "sonner";
+import type { AuthError, AuthApiError } from "@supabase/supabase-js";
+
+interface FormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  fullName: string;
+  phoneNumber: string;
+  userType: string;
+}
 
 const Signup = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
     confirmPassword: "",
@@ -57,12 +67,28 @@ const Signup = () => {
       });
 
       if (error) throw error;
+      
       toast.success("Account created successfully! Please check your email to verify your account.");
       navigate("/dashboard");
     } catch (error: any) {
-      setError(error.message);
+      if (error instanceof AuthApiError) {
+        setError(getErrorMessage(error));
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getErrorMessage = (error: AuthApiError) => {
+    switch (error.status) {
+      case 400:
+        return 'Invalid email or password format';
+      case 422:
+        return 'Email already registered';
+      default:
+        return error.message;
     }
   };
 
@@ -74,9 +100,9 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gray-50">
       <div className="max-w-md w-full">
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">Create an Account</CardTitle>
           </CardHeader>
