@@ -10,23 +10,18 @@ import {
   Download,
   Menu
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 
 const DashboardSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success('Signed out successfully');
-      navigate('/login');
-    } catch (error) {
-      toast.error('Error signing out');
-    }
+    await signOut();
+    navigate('/login');
   };
 
   const menuItems = [
