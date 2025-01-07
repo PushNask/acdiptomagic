@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@supabase/auth-helpers-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, FileText, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 
-// Import admin components
+import DashboardStats from '@/components/dashboard/DashboardStats';
 import UserManagement from '@/components/admin/UserManagement';
 import ResourceManagement from '@/components/admin/ResourceManagement';
 import PurchaseHistory from '@/components/admin/PurchaseHistory';
@@ -33,24 +32,6 @@ const AdminDashboard = () => {
     },
   });
 
-  // Fetch dashboard stats
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['admin-stats'],
-    queryFn: async () => {
-      const [users, resources, purchases] = await Promise.all([
-        supabase.from('profiles').select('count').single(),
-        supabase.from('resources').select('count').single(),
-        supabase.from('user_purchases').select('count').single(),
-      ]);
-      
-      return {
-        totalUsers: users.data?.count || 0,
-        totalResources: resources.data?.count || 0,
-        totalPurchases: purchases.data?.count || 0,
-      };
-    },
-  });
-
   // Protect admin route
   React.useEffect(() => {
     if (profile && profile.user_type !== 'admin') {
@@ -58,7 +39,7 @@ const AdminDashboard = () => {
     }
   }, [profile, navigate]);
 
-  if (profileLoading || statsLoading) {
+  if (profileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -71,42 +52,8 @@ const AdminDashboard = () => {
       <h1 className="text-2xl md:text-3xl font-bold mb-6">Admin Dashboard</h1>
       
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="flex items-center p-4">
-            <div className="rounded-full bg-blue-100 p-3">
-              <Users className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">Total Users</p>
-              <h3 className="text-xl font-bold">{stats?.totalUsers}</h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="flex items-center p-4">
-            <div className="rounded-full bg-green-100 p-3">
-              <FileText className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">Resources</p>
-              <h3 className="text-xl font-bold">{stats?.totalResources}</h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="flex items-center p-4">
-            <div className="rounded-full bg-purple-100 p-3">
-              <Settings className="h-6 w-6 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">Total Purchases</p>
-              <h3 className="text-xl font-bold">{stats?.totalPurchases}</h3>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="mb-8">
+        <DashboardStats isAdmin />
       </div>
 
       {/* Main Content Tabs */}
