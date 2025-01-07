@@ -1,21 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { generateInvoiceHTML } from "@/utils/invoiceGenerator";
-import { ClientDetails, InvoiceFormData } from "@/types/invoice";
-
-const currencies = [
-  { label: "USD ($)", value: "USD", symbol: "$" },
-  { label: "EUR (€)", value: "EUR", symbol: "€" },
-  { label: "XAF", value: "XAF", symbol: "FCFA" },
-];
+import { InvoiceFormData } from "@/types/invoice";
+import { InvoiceClientForm } from "./InvoiceClientForm";
+import { InvoiceServiceForm } from "./InvoiceServiceForm";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export const InvoiceForm = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [invoiceData, setInvoiceData] = useState<InvoiceFormData>({
     clientName: "",
     clientEmail: "",
@@ -66,133 +61,93 @@ export const InvoiceForm = () => {
     return true;
   };
 
-  const generateInvoice = () => {
+  const generateInvoice = async () => {
     if (!validateForm()) return;
 
-    const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
-    const date = new Date().toLocaleDateString();
-    
-    const invoiceHTML = generateInvoiceHTML({
-      invoiceNumber,
-      date,
-      ...invoiceData,
-    });
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to generate invoices",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
 
-    // Create blob and download
-    const blob = new Blob([invoiceHTML], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Invoice-${invoiceNumber}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    toast({
-      title: "Success",
-      description: "Invoice generated successfully!",
-    });
+      const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+      const date = new Date().toLocaleDateString();
+      
+      // Save invoice to Supabase
+      const { error: saveError } = await supabase
+        .from('invoices')
+        .insert({
+          user_id: user.id,
+          invoice_number: invoiceNumber,
+          client_name: invoiceData.clientName,
+          client_email: invoiceData.clientEmail,
+          client_address: invoiceData.clientAddress,
+          amount: parseFloat(invoiceData.amount),
+          currency: invoiceData.currency,
+          items: { services: invoiceData.services, notes: invoiceData.notes },
+          status: 'draft'
+        });
+
+      if (saveError) {
+        console.error('Error saving invoice:', saveError);
+        toast({
+          title: "Error",
+          description: "Failed to save invoice",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const invoiceHTML = generateInvoiceHTML({
+        invoiceNumber,
+        date,
+        ...invoiceData,
+      });
+
+      // Create blob and download
+      const blob = new Blob([invoiceHTML], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Invoice-${invoiceNumber}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Success",
+        description: "Invoice generated successfully!",
+      });
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate invoice",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="clientName">Client Name *</Label>
-        <Input
-          id="clientName"
-          name="clientName"
-          value={invoiceData.clientName}
-          onChange={handleChange}
-          placeholder="Enter client name"
-        />
-      </div>
+      <InvoiceClientForm 
+        clientData={invoiceData}
+        onChange={handleChange}
+      />
       
-      <div className="space-y-2">
-        <Label htmlFor="clientEmail">Client Email *</Label>
-        <Input
-          id="clientEmail"
-          name="clientEmail"
-          type="email"
-          value={invoiceData.clientEmail}
-          onChange={handleChange}
-          placeholder="Enter client email"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="clientPhone">Client Phone</Label>
-        <Input
-          id="clientPhone"
-          name="clientPhone"
-          value={invoiceData.clientPhone}
-          onChange={handleChange}
-          placeholder="Enter client phone"
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="clientAddress">Client Address</Label>
-        <Textarea
-          id="clientAddress"
-          name="clientAddress"
-          value={invoiceData.clientAddress}
-          onChange={handleChange}
-          placeholder="Enter client address"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="services">Services Description *</Label>
-        <Textarea
-          id="services"
-          name="services"
-          value={invoiceData.services}
-          onChange={handleChange}
-          placeholder="Describe the services provided"
-        />
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="amount">Amount *</Label>
-          <Input
-            id="amount"
-            name="amount"
-            type="number"
-            value={invoiceData.amount}
-            onChange={handleChange}
-            placeholder="Enter amount"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label>Currency</Label>
-          <Select value={invoiceData.currency} onValueChange={handleCurrencyChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              {currencies.map((currency) => (
-                <SelectItem key={currency.value} value={currency.value}>
-                  {currency.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="notes">Additional Notes</Label>
-        <Textarea
-          id="notes"
-          name="notes"
-          value={invoiceData.notes}
-          onChange={handleChange}
-          placeholder="Enter any additional notes"
-        />
-      </div>
+      <InvoiceServiceForm
+        serviceData={invoiceData}
+        onChange={handleChange}
+        onCurrencyChange={handleCurrencyChange}
+      />
       
       <Button 
         className="w-full"
