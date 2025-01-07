@@ -27,6 +27,9 @@ const Auth = () => {
       if (event === "SIGNED_OUT") {
         navigate("/auth");
       }
+      if (event === "USER_UPDATED" && !session) {
+        setError("An error occurred during authentication. Please try again.");
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -76,7 +79,6 @@ const Auth = () => {
               }}
               providers={[]}
               redirectTo={window.location.origin}
-              onError={handleError}
             />
           </CardContent>
         </Card>
