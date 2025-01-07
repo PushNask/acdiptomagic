@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Lock, User, Phone } from "lucide-react";
+import { Mail, Lock, User } from "lucide-react";
+import { CountryPhoneInput } from "@/components/ui/country-phone-input";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -108,22 +109,10 @@ const Signup = () => {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
+            <CountryPhoneInput
+              value={formData.phoneNumber}
+              onChange={(value) => setFormData({ ...formData, phoneNumber: value })}
+            />
             <div className="space-y-2">
               <Label htmlFor="userType">I am a</Label>
               <Select
