@@ -89,7 +89,7 @@ const Auth = () => {
                   },
                 },
               }}
-              extendedSignUpFields={[
+              extendSignUpFields={[
                 {
                   name: "full_name",
                   label: "Full Name",
