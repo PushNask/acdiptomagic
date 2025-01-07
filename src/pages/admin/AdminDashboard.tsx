@@ -40,11 +40,17 @@ const AdminDashboard = () => {
       return data;
     },
     retry: false,
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'An error occurred');
-      navigate('/dashboard');
+    meta: {
+      errorMessage: 'An error occurred'
     },
   });
+
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred');
+      navigate('/dashboard');
+    }
+  }, [error, navigate]);
 
   if (isLoading) {
     return (
@@ -55,7 +61,7 @@ const AdminDashboard = () => {
   }
 
   if (error || !profile) {
-    return null; // Navigation will occur due to onError callback
+    return null; // Navigation will occur due to useEffect
   }
 
   return (

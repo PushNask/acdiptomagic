@@ -26,10 +26,16 @@ const UserManagement = () => {
       if (error) throw error;
       return data;
     },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to load users');
+    meta: {
+      errorMessage: 'Failed to load users'
     },
   });
+
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to load users');
+    }
+  }, [error]);
 
   if (isLoading) {
     return (
