@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Mail, Lock, LogIn } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -29,13 +30,32 @@ const Login = () => {
     setError("");
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
-      navigate("/dashboard");
+      if (signInError) {
+        if (signInError.message === "Invalid login credentials") {
+          setError("Invalid email or password. Please check your credentials and try again.");
+        } else if (signInError.message.includes("Email not confirmed")) {
+          setError("Please verify your email address before signing in.");
+        } else {
+          setError(signInError.message);
+        }
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: "Please check your credentials and try again.",
+        });
+        return;
+      }
+
+      // If successful, the auth state change listener in App.tsx will handle navigation
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      });
     } catch (error: any) {
       setError(error.message);
     } finally {
