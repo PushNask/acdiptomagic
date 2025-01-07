@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { describe, it, expect, vi } from 'vitest';
 import DashboardSidebar from '../DashboardSidebar';
 
 const renderWithProviders = (component: React.ReactNode) => {

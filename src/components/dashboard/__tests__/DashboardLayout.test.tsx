@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { describe, it, expect } from 'vitest';
 import DashboardLayout from '../DashboardLayout';
 
 const renderWithProviders = (component: React.ReactNode) => {
