@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Mail, Lock, User } from "lucide-react";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
 import { toast } from "sonner";
-import type { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { AuthError } from "@supabase/supabase-js";
+import { AuthApiError } from "@supabase/supabase-js";
 
 interface FormData {
   email: string;

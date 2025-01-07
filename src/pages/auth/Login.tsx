@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import type { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { AuthError } from "@supabase/supabase-js";
+import { AuthApiError } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
 const Login = () => {
