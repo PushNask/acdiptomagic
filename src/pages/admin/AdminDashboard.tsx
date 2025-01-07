@@ -3,10 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@supabase/auth-helpers-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Download, FileText, Settings, AlertCircle } from 'lucide-react';
+import { Users, FileText, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+
+// Import admin components
+import UserManagement from '@/components/admin/UserManagement';
+import ResourceManagement from '@/components/admin/ResourceManagement';
+import PurchaseHistory from '@/components/admin/PurchaseHistory';
+import AdminSettings from '@/components/admin/AdminSettings';
 
 const AdminDashboard = () => {
   const user = useUser();
@@ -93,10 +99,10 @@ const AdminDashboard = () => {
         <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="flex items-center p-4">
             <div className="rounded-full bg-purple-100 p-3">
-              <Download className="h-6 w-6 text-purple-600" />
+              <Settings className="h-6 w-6 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm text-gray-500">Total Downloads</p>
+              <p className="text-sm text-gray-500">Total Purchases</p>
               <h3 className="text-xl font-bold">{stats?.totalPurchases}</h3>
             </div>
           </CardContent>
