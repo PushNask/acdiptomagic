@@ -17,7 +17,6 @@ import AdminSettings from '@/components/admin/AdminSettings';
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
-  // Fetch admin status with proper error handling
   const { data: profile, isLoading, error } = useQuery({
     queryKey: ['admin-profile'],
     queryFn: async () => {
@@ -30,7 +29,7 @@ const AdminDashboard = () => {
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       if (!data || data.user_type !== 'admin') {
@@ -61,7 +60,7 @@ const AdminDashboard = () => {
   }
 
   if (error || !profile) {
-    return null; // Navigation will occur due to useEffect
+    return null;
   }
 
   return (
@@ -69,12 +68,10 @@ const AdminDashboard = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl md:text-3xl font-bold mb-6">Admin Dashboard</h1>
         
-        {/* Stats Overview */}
         <div className="mb-8">
           <DashboardStats isAdmin />
         </div>
 
-        {/* Main Content Tabs */}
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:w-[400px]">
             <TabsTrigger value="users">Users</TabsTrigger>

@@ -60,13 +60,6 @@ const MobileNav = ({ isOpen, onClose, isAuthenticated, onSignOut }: MobileNavPro
             >
               Dashboard
             </Link>
-            <Link
-              to="/invoice"
-              className="text-gray-600 hover:text-brand-blue transition-colors"
-              onClick={onClose}
-            >
-              Invoices
-            </Link>
             <button
               className="text-left text-gray-600 hover:text-brand-blue transition-colors"
               onClick={() => {

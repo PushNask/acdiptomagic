@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
+import { toast } from 'sonner';
 
 const DashboardSidebar = () => {
   const location = useLocation();
@@ -20,8 +21,14 @@ const DashboardSidebar = () => {
   const { signOut } = useAuth();
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
+    try {
+      await signOut();
+      navigate('/login');
+      toast.success('Signed out successfully');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast.error('Error signing out');
+    }
   };
 
   const menuItems = [

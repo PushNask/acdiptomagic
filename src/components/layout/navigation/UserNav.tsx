@@ -31,9 +31,6 @@ const UserNav = ({ onSignOut, userType }: UserNavProps) => {
             <Link to="/admin" className="w-full">Admin Dashboard</Link>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem asChild>
-          <Link to="/invoice" className="w-full">Invoices</Link>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={onSignOut} className="text-red-600">
           <LogOut className="w-4 h-4 mr-2" />
           Sign Out
