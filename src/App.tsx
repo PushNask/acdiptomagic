@@ -25,7 +25,8 @@ import Resources from "./pages/Resources";
 import Contact from "./pages/Contact";
 import Invoice from "./pages/Invoice";
 import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
 import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
@@ -56,7 +57,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
@@ -83,7 +84,8 @@ const App = () => {
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/auth" element={<Auth />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
 
                 {/* Protected routes */}
                 <Route path="/dashboard" element={
