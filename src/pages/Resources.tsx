@@ -1,61 +1,10 @@
-import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { FileDown, Book, PresentationIcon, ChartBar } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-
-interface Resource {
-  id: string;
-  title: string;
-  description: string;
-  file_url: string;
-  price: number;
-  category: string;
-}
-
-const fetchResources = async () => {
-  const { data, error } = await supabase
-    .from('resources')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error details:', error);
-    throw error;
-  }
-
-  return data || [];
-};
+import { Book, PresentationIcon, ChartBar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Resources = () => {
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { toast } = useToast();
-
-  const { data: resources = [], isError, error } = useQuery({
-    queryKey: ['resources'],
-    queryFn: fetchResources,
-    retry: 1,
-  });
-
-  useEffect(() => {
-    if (isError && error instanceof Error) {
-      toast({
-        title: "Error",
-        description: "Failed to load resources. Please try again later.",
-        variant: "destructive",
-      });
-      console.error('Error fetching resources:', error);
-    }
-  }, [isError, error, toast]);
-
-  const handleBuyClick = (resource: Resource) => {
-    setSelectedResource(resource);
-    setIsDialogOpen(true);
-  };
+  const navigate = useNavigate();
 
   const categories = [
     {
@@ -95,25 +44,9 @@ const Resources = () => {
               <CardDescription>{category.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
-                {resources
-                  .filter(resource => resource.category === category.title)
-                  .slice(0, 4)
-                  .map((resource, idx) => (
-                    <li key={idx} className="flex items-center gap-2">
-                      <FileDown className="h-4 w-4 text-primary" />
-                      <span className="text-sm">{resource.title}</span>
-                    </li>
-                  ))}
-              </ul>
               <Button 
                 className="w-full mt-6"
-                onClick={() => {
-                  const resourcesInCategory = resources.filter(r => r.category === category.title);
-                  if (resourcesInCategory.length > 0) {
-                    handleBuyClick(resourcesInCategory[0]);
-                  }
-                }}
+                onClick={() => navigate(`/resources/category/${category.title}`)}
               >
                 Access Resources
               </Button>
@@ -121,40 +54,6 @@ const Resources = () => {
           </Card>
         ))}
       </div>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Purchase Instructions</DialogTitle>
-            <DialogDescription>
-              Follow these steps to access {selectedResource?.title}:
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm">
-              1. Contact our sales team at <span className="font-medium">sales@acdito-push.com</span>
-            </p>
-            <p className="text-sm">
-              2. Reference the resource: {selectedResource?.title}
-            </p>
-            <p className="text-sm">
-              3. Price: ${selectedResource?.price}
-            </p>
-            <p className="text-sm">
-              4. You'll receive access instructions within 24 hours after payment confirmation.
-            </p>
-            <Button 
-              className="w-full"
-              onClick={() => {
-                window.location.href = `mailto:sales@acdito-push.com?subject=Purchase%20Request:%20${selectedResource?.title}&body=I'm%20interested%20in%20purchasing%20${selectedResource?.title}.%20Please%20provide%20payment%20instructions.`;
-                setIsDialogOpen(false);
-              }}
-            >
-              Contact Sales Team
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

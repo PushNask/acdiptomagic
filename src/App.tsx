@@ -22,8 +22,8 @@ import BusinessIncorporation from "./pages/BusinessIncorporation";
 import TrainingAdvisory from "./pages/TrainingAdvisory";
 import Blog from "./pages/Blog";
 import Resources from "./pages/Resources";
+import ResourceSales from "./pages/ResourceSales";
 import Contact from "./pages/Contact";
-import Invoice from "./pages/Invoice";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -83,6 +83,7 @@ const App = () => {
                 <Route path="/services/training-advisory" element={<TrainingAdvisory />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/resources" element={<Resources />} />
+                <Route path="/resources/category/:category" element={<ResourceSales />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
@@ -91,11 +92,6 @@ const App = () => {
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/invoice" element={
-                  <ProtectedRoute>
-                    <Invoice />
                   </ProtectedRoute>
                 } />
 
