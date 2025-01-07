@@ -21,7 +21,7 @@ import Signup from "@/pages/auth/Signup";
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Auth routes without footer */}
+      {/* Auth routes */}
       <Route path="/login" element={
         <AuthLayout>
           <Login />
