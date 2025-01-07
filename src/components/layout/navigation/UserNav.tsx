@@ -1,60 +1,61 @@
 import { Link } from "react-router-dom";
-import { LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
-interface UserNavProps {
-  onSignOut: () => void;
-  userType?: string | null;
-}
+export function UserNav() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
-const UserNav = ({ onSignOut, userType }: UserNavProps) => {
   const handleSignOut = async () => {
     try {
-      console.log('Attempting to sign out...');
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      console.log('Sign out successful');
+      await signOut();
+      navigate('/');
       toast.success('Signed out successfully');
-      onSignOut();
     } catch (error) {
-      console.error('Sign out error:', error);
-      toast.error('Failed to sign out');
+      console.error('Error signing out:', error);
+      toast.error('Error signing out');
     }
   };
+
+  if (!user) {
+    return (
+      <div className="flex items-center gap-4">
+        <Link to="/login">
+          <Button variant="ghost" size="sm">
+            Sign In
+          </Button>
+        </Link>
+        <Link to="/signup">
+          <Button size="sm">Sign Up</Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm">
-          <User className="w-4 h-4 mr-2" />
           Account
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem asChild>
-          <Link to="/dashboard" className="w-full">Dashboard</Link>
-        </DropdownMenuItem>
-        {userType === 'admin' && (
-          <DropdownMenuItem asChild>
-            <Link to="/admin" className="w-full">Admin Dashboard</Link>
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-          <LogOut className="w-4 h-4 mr-2" />
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem>Settings</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleSignOut}>
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
-
-export default UserNav;
+}

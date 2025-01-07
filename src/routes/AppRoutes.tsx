@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AuthLayout from "@/components/layout/AuthLayout";
 import MainLayout from "@/components/layout/MainLayout";
 
@@ -18,8 +17,6 @@ import Contact from "@/pages/Contact";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
-import Dashboard from "@/pages/Dashboard";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
 
 const AppRoutes = () => {
   return (
@@ -34,22 +31,6 @@ const AppRoutes = () => {
         <AuthLayout>
           <Signup />
         </AuthLayout>
-      } />
-
-      {/* Protected routes */}
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Dashboard />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/admin" element={
-        <ProtectedRoute adminOnly>
-          <MainLayout>
-            <AdminDashboard />
-          </MainLayout>
-        </ProtectedRoute>
       } />
 
       {/* Public routes */}
