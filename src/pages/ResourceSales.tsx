@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { shopping-cart, dollar-sign } from 'lucide-react';
+import { ShoppingCart, DollarSign } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -70,7 +70,7 @@ const ResourceSales = () => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <shopping-cart className="h-12 w-12 text-gray-400" />
+                    <ShoppingCart className="h-12 w-12 text-gray-400" />
                   </div>
                 )}
               </div>
@@ -81,7 +81,7 @@ const ResourceSales = () => {
               <div className="flex-1" />
               <div className="flex items-center justify-between mt-4">
                 <div className="flex items-center">
-                  <dollar-sign className="h-5 w-5 text-green-600 mr-1" />
+                  <DollarSign className="h-5 w-5 text-green-600 mr-1" />
                   <span className="text-xl font-bold">${resource.price}</span>
                 </div>
                 <Button onClick={() => handleBuyClick(resource)}>
