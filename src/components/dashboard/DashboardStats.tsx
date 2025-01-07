@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { FileText, Headphones, Calendar, AlertCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +13,9 @@ const DashboardStats = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       console.log('Fetching dashboard stats for:', isAdmin ? 'admin' : 'user');
       
       try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+
         if (isAdmin) {
           const [users, resources, purchases] = await Promise.all([
             supabase.from('profiles').select('count').single(),
@@ -34,7 +37,7 @@ const DashboardStats = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           const { data: userStats, error: statsError } = await supabase
             .from('user_purchases')
             .select('*')
-            .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+            .eq('user_id', user.id);
 
           if (statsError) throw statsError;
 
@@ -50,12 +53,13 @@ const DashboardStats = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         throw error;
       }
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     meta: {
       errorMessage: 'Failed to load dashboard statistics'
     }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       console.error('Dashboard stats error:', error);
       toast.error('Error loading dashboard statistics');

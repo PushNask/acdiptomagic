@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "./DashboardSidebar";
-import { useUser } from '@supabase/auth-helpers-react';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,12 +11,15 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const user = useUser();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('Checking authentication status...');
+        setIsLoading(true);
+        
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -31,7 +33,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           return;
         }
 
-        // Verify profile exists
+        console.log('Session found, checking profile...');
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -51,18 +53,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           return;
         }
 
-        console.log('User authenticated and profile loaded successfully');
+        console.log('Authentication check completed successfully');
       } catch (error) {
         console.error('Dashboard authentication error:', error);
         toast.error('Error loading dashboard');
         navigate('/login');
+      } finally {
+        setIsLoading(false);
       }
     };
 
     checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event);
+      if (event === 'SIGNED_OUT') {
+        navigate('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
-  if (!user) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
         <Loader2 className="h-8 w-8 animate-spin" />
