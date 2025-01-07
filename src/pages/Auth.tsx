@@ -5,11 +5,20 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phoneNumber: "",
+    userType: "startup"
+  });
 
   useEffect(() => {
     // Check if user is already logged in
@@ -48,7 +57,7 @@ const Auth = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-md mx-auto">
-        <Card>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
               Welcome to AcDiToPush
@@ -60,6 +69,7 @@ const Auth = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+            
             <SupabaseAuth
               supabaseClient={supabase}
               appearance={{
@@ -75,6 +85,47 @@ const Auth = () => {
               }}
               providers={[]}
               redirectTo={window.location.origin}
+              view={isSignUp ? "sign_up" : "sign_in"}
+              onViewChange={(view) => setIsSignUp(view === "sign_up")}
+              localization={{
+                variables: {
+                  sign_up: {
+                    email_label: "Email",
+                    password_label: "Password",
+                    button_label: "Sign Up",
+                    loading_button_label: "Signing up...",
+                    social_provider_text: "Sign in with {{provider}}",
+                    link_text: "Don't have an account? Sign up",
+                    confirmation_text: "Check your email for the confirmation link",
+                  },
+                },
+              }}
+              extendedSignUpFields={[
+                {
+                  name: "full_name",
+                  label: "Full Name",
+                  type: "text",
+                  required: true,
+                },
+                {
+                  name: "phone_number",
+                  label: "Phone Number",
+                  type: "tel",
+                  required: true,
+                },
+                {
+                  name: "user_type",
+                  label: "I am a",
+                  type: "select",
+                  options: [
+                    { label: "Startup", value: "startup" },
+                    { label: "SME", value: "sme" },
+                    { label: "Investor", value: "investor" },
+                    { label: "Student", value: "student" },
+                  ],
+                  required: true,
+                },
+              ]}
             />
           </CardContent>
         </Card>
