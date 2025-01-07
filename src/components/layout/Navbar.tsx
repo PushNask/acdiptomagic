@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, User } from "lucide-react";
+import { Menu, X, LogOut, User, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupabaseUser } from '@supabase/supabase-js';
@@ -59,7 +59,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
             {menuItems.map((item) => (
               <div key={item.path} className="relative group">
                 <Link
@@ -108,13 +108,24 @@ const Navbar = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                variant="default" 
-                className="bg-brand-orange hover:bg-brand-orange/90 text-white"
-                onClick={() => navigate("/auth")}
-              >
-                Sign In
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="ghost"
+                  onClick={() => navigate("/login")}
+                  className="flex items-center"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+                <Button 
+                  variant="default"
+                  onClick={() => navigate("/signup")}
+                  className="bg-brand-orange hover:bg-brand-orange/90 text-white flex items-center"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Sign Up
+                </Button>
+              </div>
             )}
           </div>
 
@@ -181,16 +192,30 @@ const Navbar = () => {
                   </Button>
                 </>
               ) : (
-                <Button 
-                  variant="default" 
-                  className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white"
-                  onClick={() => {
-                    navigate("/auth");
-                    setIsOpen(false);
-                  }}
-                >
-                  Sign In
-                </Button>
+                <div className="flex flex-col space-y-2">
+                  <Button 
+                    variant="ghost"
+                    onClick={() => {
+                      navigate("/login");
+                      setIsOpen(false);
+                    }}
+                    className="justify-start px-0 hover:bg-transparent"
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                  <Button 
+                    variant="default"
+                    onClick={() => {
+                      navigate("/signup");
+                      setIsOpen(false);
+                    }}
+                    className="bg-brand-orange hover:bg-brand-orange/90 text-white"
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Sign Up
+                  </Button>
+                </div>
               )}
             </div>
           </div>
