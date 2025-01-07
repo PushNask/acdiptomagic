@@ -1,10 +1,37 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import type { User as SupabaseUser } from '@supabase/supabase-js';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   const menuItems = [
     { label: "Home", path: "/" },
@@ -32,7 +59,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item) => (
               <div key={item.path} className="relative group">
                 <Link
@@ -58,19 +85,37 @@ const Navbar = () => {
                 )}
               </div>
             ))}
-            <a 
-              href="https://calendly.com/mbeh" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex"
-            >
+
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <User className="w-4 h-4 mr-2" />
+                    Account
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/invoice")}>
+                    Invoices
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
               <Button 
                 variant="default" 
                 className="bg-brand-orange hover:bg-brand-orange/90 text-white"
+                onClick={() => navigate("/auth")}
               >
-                Get a Quote
+                Sign In
               </Button>
-            </a>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -110,19 +155,43 @@ const Navbar = () => {
                   </Link>
                 ))}
               </div>
-              <a 
-                href="https://calendly.com/mbeh" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex"
-              >
+              {user ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="text-gray-600 hover:text-brand-blue transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/invoice"
+                    className="text-gray-600 hover:text-brand-blue transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Invoices
+                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    className="justify-start px-0 hover:bg-transparent"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
                 <Button 
                   variant="default" 
                   className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white"
+                  onClick={() => {
+                    navigate("/auth");
+                    setIsOpen(false);
+                  }}
                 >
-                  Get a Quote
+                  Sign In
                 </Button>
-              </a>
+              )}
             </div>
           </div>
         )}
