@@ -11,6 +11,7 @@ import type { User } from '@supabase/supabase-js';
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ChatBot from "@/components/shared/ChatBot";
+import AnnouncementBanner from "@/components/shared/AnnouncementBanner";
 
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -31,7 +32,6 @@ import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
-// Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +69,7 @@ const App = () => {
       <BrowserRouter>
         <TooltipProvider>
           <div className="min-h-screen flex flex-col">
+            <AnnouncementBanner />
             <Navbar />
             <main className="flex-1 pt-16">
               <Routes>
