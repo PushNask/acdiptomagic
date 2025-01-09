@@ -12,14 +12,14 @@ interface ResourceCardProps {
 }
 
 const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
-  const [imageUrl, setImageUrl] = useState<string>('/placeholder.svg');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadImageUrl = async () => {
       try {
         if (!resource) {
-          setImageUrl('/placeholder.svg');
+          setIsLoading(false);
           return;
         }
 
@@ -30,41 +30,33 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
             .from('product-images')
             .getPublicUrl(resource.resource_images[0].file_path);
           
-          console.log('Resource images URL:', publicUrl);
           setImageUrl(publicUrl.publicUrl);
         } 
-        // Fallback to cover_image if no resource_images
+        // Use cover_image if no resource_images
         else if (resource.cover_image) {
           let finalImagePath = resource.cover_image;
           
-          // If the path starts with /lovable-uploads/, remove it
+          // Remove /lovable-uploads/ prefix if present
           if (finalImagePath.startsWith('/lovable-uploads/')) {
             finalImagePath = finalImagePath.replace('/lovable-uploads/', '');
           }
           
-          // Get the public URL from Supabase storage
           const { data: publicUrl } = supabase
             .storage
             .from('product-images')
             .getPublicUrl(finalImagePath);
           
-          console.log('Cover image path:', finalImagePath);
-          console.log('Cover image public URL:', publicUrl);
+          console.log('Loading image for resource:', resource.id);
+          console.log('Final image path:', finalImagePath);
+          console.log('Public URL:', publicUrl);
           
           if (publicUrl) {
             setImageUrl(publicUrl.publicUrl);
-          } else {
-            console.error('Failed to get public URL for:', finalImagePath);
-            setImageUrl('/placeholder.svg');
           }
-        } else {
-          console.log('No image found for resource:', resource.id);
-          setImageUrl('/placeholder.svg');
         }
       } catch (error) {
         console.error('Error loading image for resource:', error);
         toast.error('Error loading resource image');
-        setImageUrl('/placeholder.svg');
       } finally {
         setIsLoading(false);
       }
@@ -83,16 +75,20 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
         <div className="relative aspect-[16/9] w-full bg-gray-100 rounded-t-lg mb-4 overflow-hidden">
           {isLoading ? (
             <Skeleton className="absolute inset-0" />
-          ) : (
+          ) : imageUrl ? (
             <img 
               src={imageUrl}
               alt={resource.title}
               className="absolute inset-0 w-full h-full object-cover"
               onError={(e) => {
                 console.error('Image load error for:', resource);
-                setImageUrl('/placeholder.svg');
+                setImageUrl(null);
               }}
             />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+              <span className="text-gray-400">No image available</span>
+            </div>
           )}
         </div>
         <CardTitle className="text-xl line-clamp-2">{resource.title}</CardTitle>
