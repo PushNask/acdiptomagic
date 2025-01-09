@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { DollarSign, ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from "@/components/ui/skeleton";
+import ShareButtons from "@/components/shared/ShareButtons";
+import { Helmet } from 'react-helmet';
 
 interface ResourceCardProps {
   resource: any;
@@ -24,32 +26,24 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
 
       let imagePath = null;
 
-      // First try to get image from resource_images
       if (resource.resource_images?.[0]?.file_path) {
         imagePath = resource.resource_images[0].file_path;
-        console.log('Using resource_images path:', imagePath);
-      } 
-      // If no resource_images, try cover_image
-      else if (resource.cover_image) {
+      } else if (resource.cover_image) {
         imagePath = resource.cover_image;
-        console.log('Using cover_image path:', imagePath);
       }
 
       if (!imagePath) {
-        console.log('No image path found for resource:', resource);
         setIsLoading(false);
         setLoadError(true);
         return;
       }
 
-      // Get the public URL for the image
       const { data: publicUrlData } = supabase
         .storage
         .from('product-images')
         .getPublicUrl(imagePath);
 
       if (publicUrlData?.publicUrl) {
-        // Create a new image object to test loading
         const img = new Image();
         
         img.onload = () => {
@@ -58,13 +52,7 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
           setLoadError(false);
         };
 
-        img.onerror = (e) => {
-          console.error('Error loading image:', {
-            originalPath: imagePath,
-            publicUrl: publicUrlData.publicUrl,
-            error: e,
-            resource: resource.title
-          });
+        img.onerror = () => {
           setImageUrl(null);
           setIsLoading(false);
           setLoadError(true);
@@ -72,7 +60,6 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
 
         img.src = publicUrlData.publicUrl;
       } else {
-        console.error('No public URL generated for image:', imagePath);
         setIsLoading(false);
         setLoadError(true);
       }
@@ -93,44 +80,64 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
     return <Skeleton className="h-[400px] w-full" />;
   }
 
+  const shareUrl = window.location.origin + window.location.pathname + '?resource=' + resource.id;
+
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader>
-        <div className="relative aspect-[16/9] w-full bg-gray-100 rounded-t-lg mb-4 overflow-hidden">
-          {isLoading ? (
-            <Skeleton className="absolute inset-0" />
-          ) : !loadError && imageUrl ? (
-            <img 
-              src={imageUrl}
-              alt={resource.title}
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-              <ImageIcon className="h-12 w-12 text-gray-400" />
-            </div>
-          )}
-        </div>
-        <CardTitle className="text-xl line-clamp-2">{resource.title}</CardTitle>
-        <CardDescription className="line-clamp-3">{resource.description}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        <div className="flex-1" />
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center">
-            <DollarSign className="h-5 w-5 text-green-600 mr-1" />
-            <span className="text-xl font-bold">${resource.price.toFixed(2)}</span>
+    <>
+      <Helmet>
+        <meta property="og:title" content={resource.title} />
+        <meta property="og:description" content={resource.description} />
+        {imageUrl && <meta property="og:image" content={imageUrl} />}
+        <meta property="og:url" content={shareUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={resource.title} />
+        <meta name="twitter:description" content={resource.description} />
+        {imageUrl && <meta name="twitter:image" content={imageUrl} />}
+      </Helmet>
+
+      <Card className="flex flex-col h-full">
+        <CardHeader>
+          <div className="relative aspect-[16/9] w-full bg-gray-100 rounded-t-lg mb-4 overflow-hidden">
+            {isLoading ? (
+              <Skeleton className="absolute inset-0" />
+            ) : !loadError && imageUrl ? (
+              <img 
+                src={imageUrl}
+                alt={resource.title}
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <ImageIcon className="h-12 w-12 text-gray-400" />
+              </div>
+            )}
           </div>
-          <Button 
-            onClick={() => onBuyClick(resource)}
-            className="bg-primary hover:bg-primary/90"
-          >
-            Order Now
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          <CardTitle className="text-xl line-clamp-2">{resource.title}</CardTitle>
+          <CardDescription className="line-clamp-3">{resource.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col">
+          <div className="flex-1" />
+          <ShareButtons 
+            url={shareUrl}
+            title={resource.title}
+            description={resource.description || ''}
+          />
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center">
+              <DollarSign className="h-5 w-5 text-green-600 mr-1" />
+              <span className="text-xl font-bold">${resource.price.toFixed(2)}</span>
+            </div>
+            <Button 
+              onClick={() => onBuyClick(resource)}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Order Now
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 
