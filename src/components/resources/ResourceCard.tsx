@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { DollarSign } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ResourceCardProps {
   resource: any;
@@ -28,6 +29,7 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
             .from('product-images')
             .getPublicUrl(resource.resource_images[0].file_path);
           
+          console.log('Resource images URL:', publicUrl);
           setImageUrl(publicUrl.publicUrl);
         } 
         // Fallback to cover_image if no resource_images
@@ -40,13 +42,15 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
               .from('product-images')
               .getPublicUrl(resource.cover_image);
             
+            console.log('Cover image URL:', publicUrl);
             setImageUrl(publicUrl.publicUrl);
           }
         } else {
+          console.log('No image found for resource:', resource.id);
           setImageUrl('/placeholder.svg');
         }
       } catch (error) {
-        console.error('Error loading image for resource:', resource);
+        console.error('Error loading image for resource:', error);
         setImageUrl('/placeholder.svg');
       } finally {
         setIsLoading(false);
@@ -56,19 +60,27 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
     loadImageUrl();
   }, [resource]);
 
+  if (!resource) {
+    return <Skeleton className="h-[400px] w-full" />;
+  }
+
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <div className="relative aspect-[16/9] w-full bg-gray-100 rounded-t-lg mb-4 overflow-hidden">
-          <img 
-            src={imageUrl}
-            alt={resource.title}
-            className="absolute inset-0 w-full h-full object-cover"
-            onError={() => {
-              console.error('Image load error for:', resource);
-              setImageUrl('/placeholder.svg');
-            }}
-          />
+          {isLoading ? (
+            <Skeleton className="absolute inset-0" />
+          ) : (
+            <img 
+              src={imageUrl}
+              alt={resource.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                console.error('Image load error for:', resource);
+                setImageUrl('/placeholder.svg');
+              }}
+            />
+          )}
         </div>
         <CardTitle className="text-xl line-clamp-2">{resource.title}</CardTitle>
         <CardDescription className="line-clamp-3">{resource.description}</CardDescription>

@@ -26,7 +26,10 @@ const ResourceSales = () => {
         .eq('category', category)
         .order('created_at', { ascending: false });
 
-      if (resourcesError) throw resourcesError;
+      if (resourcesError) {
+        console.error('Error fetching resources:', resourcesError);
+        throw resourcesError;
+      }
       
       console.log('Resources data:', resourcesData);
       return resourcesData;
