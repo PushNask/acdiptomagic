@@ -40,7 +40,7 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
         return;
       }
 
-      // Get the public URL for the image from the product-images bucket
+      // Get the public URL for the image
       const { data: publicUrlData } = supabase
         .storage
         .from('product-images')
@@ -49,7 +49,7 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
       if (publicUrlData?.publicUrl) {
         console.log('Generated public URL:', publicUrlData.publicUrl);
         
-        // Pre-load the image
+        // Create a new image object to test loading
         const img = new Image();
         
         img.onload = () => {
