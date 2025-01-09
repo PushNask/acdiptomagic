@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
   server: {
-    host: true, // Listen on all addresses
+    host: true,
     port: 8080,
     strictPort: true,
     cors: {
@@ -17,7 +17,8 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       protocol: 'wss',
       clientPort: 443,
-      host: `cc0ca1fd-d388-4ca9-b3c3-e7409e536f14.lovableproject.com`
+      host: `cc0ca1fd-d388-4ca9-b3c3-e7409e536f14.lovableproject.com`,
+      path: '/hmr/'
     }
   },
   preview: {
