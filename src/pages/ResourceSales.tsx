@@ -62,9 +62,9 @@ const ResourceSales = () => {
           <Card key={resource.id} className="flex flex-col">
             <CardHeader>
               <div className="aspect-video w-full bg-gray-100 rounded-t-lg mb-4">
-                {resource.cover_image ? (
+                {resource.cover_image || resource.file_url ? (
                   <img 
-                    src={resource.cover_image} 
+                    src={resource.cover_image || resource.file_url} 
                     alt={resource.title}
                     className="w-full h-full object-cover rounded-t-lg"
                   />

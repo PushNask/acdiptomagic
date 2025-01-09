@@ -6,243 +6,20 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+// Database types
 export type Database = {
   public: {
     Tables: {
-      audit_logs: {
-        Row: {
-          action: string
-          changes: Json | null
-          created_at: string | null
-          id: string
-          record_id: string | null
-          table_name: string
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          changes?: Json | null
-          created_at?: string | null
-          id?: string
-          record_id?: string | null
-          table_name: string
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          changes?: Json | null
-          created_at?: string | null
-          id?: string
-          record_id?: string | null
-          table_name?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "audit_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      invoices: {
-        Row: {
-          amount: number
-          client_address: string | null
-          client_email: string
-          client_name: string
-          created_at: string | null
-          currency: string
-          id: string
-          invoice_number: string
-          items: Json
-          status: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          amount: number
-          client_address?: string | null
-          client_email: string
-          client_name: string
-          created_at?: string | null
-          currency?: string
-          id?: string
-          invoice_number: string
-          items: Json
-          status?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          amount?: number
-          client_address?: string | null
-          client_email?: string
-          client_name?: string
-          created_at?: string | null
-          currency?: string
-          id?: string
-          invoice_number?: string
-          items?: Json
-          status?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invoices_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profiles: {
-        Row: {
-          company_logo: string | null
-          company_name: string | null
-          created_at: string | null
-          email: string
-          full_name: string | null
-          id: string
-          phone_number: string | null
-          updated_at: string | null
-          user_type: string | null
-        }
-        Insert: {
-          company_logo?: string | null
-          company_name?: string | null
-          created_at?: string | null
-          email: string
-          full_name?: string | null
-          id: string
-          phone_number?: string | null
-          updated_at?: string | null
-          user_type?: string | null
-        }
-        Update: {
-          company_logo?: string | null
-          company_name?: string | null
-          created_at?: string | null
-          email?: string
-          full_name?: string | null
-          id?: string
-          phone_number?: string | null
-          updated_at?: string | null
-          user_type?: string | null
-        }
-        Relationships: []
-      }
-      resources: {
-        Row: {
-          category: string
-          created_at: string | null
-          description: string | null
-          file_url: string
-          id: string
-          price: number
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          file_url: string
-          id?: string
-          price: number
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          file_url?: string
-          id?: string
-          price?: number
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      user_purchases: {
-        Row: {
-          created_at: string | null
-          expires_at: string
-          id: string
-          purchased_at: string | null
-          resource_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          expires_at: string
-          id?: string
-          purchased_at?: string | null
-          resource_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          purchased_at?: string | null
-          resource_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_purchases_resource_id_fkey"
-            columns: ["resource_id"]
-            isOneToOne: false
-            referencedRelation: "resources"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_purchases_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      audit_logs: AuditLogsTable
+      invoices: InvoicesTable
+      profiles: ProfilesTable
+      resources: ResourcesTable
+      user_purchases: UserPurchasesTable
     }
     Views: {
       [_ in never]: never
     }
-    Functions: {
-      calculate_link_performance: {
-        Args: {
-          views: number
-          clicks: number
-          rotation_count: number
-        }
-        Returns: number
-      }
-      calculate_link_performance_score: {
-        Args: {
-          p_views: number
-          p_clicks: number
-          p_shares: number
-          p_time_on_page: number
-          p_bounce_rate: number
-        }
-        Returns: number
-      }
-      export_links_data: {
-        Args: {
-          format: string
-          start_date: string
-          end_date: string
-        }
-        Returns: string
-      }
-    }
+    Functions: DatabaseFunctions
     Enums: {
       [_ in never]: never
     }
@@ -252,6 +29,212 @@ export type Database = {
   }
 }
 
+// Table interfaces
+interface AuditLogsTable {
+  Row: {
+    id: string
+    user_id: string | null
+    action: string
+    table_name: string
+    record_id: string | null
+    changes: Json | null
+    created_at: string | null
+  }
+  Insert: {
+    id?: string
+    user_id?: string | null
+    action: string
+    table_name: string
+    record_id?: string | null
+    changes?: Json | null
+    created_at?: string | null
+  }
+  Update: {
+    id?: string
+    user_id?: string | null
+    action?: string
+    table_name?: string
+    record_id?: string | null
+    changes?: Json | null
+    created_at?: string | null
+  }
+}
+
+interface InvoicesTable {
+  Row: {
+    id: string
+    user_id: string | null
+    invoice_number: string
+    client_name: string
+    client_email: string
+    client_address: string | null
+    amount: number
+    currency: string
+    items: Json
+    status: string
+    created_at: string | null
+    updated_at: string | null
+  }
+  Insert: {
+    id?: string
+    user_id?: string | null
+    invoice_number: string
+    client_name: string
+    client_email: string
+    client_address?: string | null
+    amount: number
+    currency?: string
+    items: Json
+    status?: string
+    created_at?: string | null
+    updated_at?: string | null
+  }
+  Update: {
+    id?: string
+    user_id?: string | null
+    invoice_number?: string
+    client_name?: string
+    client_email?: string
+    client_address?: string | null
+    amount?: number
+    currency?: string
+    items?: Json
+    status?: string
+    created_at?: string | null
+    updated_at?: string | null
+  }
+}
+
+interface ProfilesTable {
+  Row: {
+    id: string
+    email: string
+    full_name: string | null
+    company_name: string | null
+    company_logo: string | null
+    created_at: string | null
+    updated_at: string | null
+    phone_number: string | null
+    user_type: string | null
+  }
+  Insert: {
+    id: string
+    email: string
+    full_name?: string | null
+    company_name?: string | null
+    company_logo?: string | null
+    created_at?: string | null
+    updated_at?: string | null
+    phone_number?: string | null
+    user_type?: string | null
+  }
+  Update: {
+    id?: string
+    email?: string
+    full_name?: string | null
+    company_name?: string | null
+    company_logo?: string | null
+    created_at?: string | null
+    updated_at?: string | null
+    phone_number?: string | null
+    user_type?: string | null
+  }
+}
+
+interface ResourcesTable {
+  Row: {
+    id: string
+    title: string
+    description: string | null
+    file_url: string
+    price: number
+    created_at: string | null
+    updated_at: string | null
+    category: string
+    cover_image: string | null
+  }
+  Insert: {
+    id?: string
+    title: string
+    description?: string | null
+    file_url: string
+    price: number
+    created_at?: string | null
+    updated_at?: string | null
+    category?: string
+    cover_image?: string | null
+  }
+  Update: {
+    id?: string
+    title?: string
+    description?: string | null
+    file_url?: string
+    price?: number
+    created_at?: string | null
+    updated_at?: string | null
+    category?: string
+    cover_image?: string | null
+  }
+}
+
+interface UserPurchasesTable {
+  Row: {
+    id: string
+    user_id: string | null
+    resource_id: string | null
+    purchased_at: string | null
+    expires_at: string
+    created_at: string | null
+  }
+  Insert: {
+    id?: string
+    user_id?: string | null
+    resource_id?: string | null
+    purchased_at?: string | null
+    expires_at: string
+    created_at?: string | null
+  }
+  Update: {
+    id?: string
+    user_id?: string | null
+    resource_id?: string | null
+    purchased_at?: string | null
+    expires_at?: string
+    created_at?: string | null
+  }
+}
+
+// Database functions
+interface DatabaseFunctions {
+  calculate_link_performance: {
+    Args: {
+      views: number
+      clicks: number
+      rotation_count: number
+    }
+    Returns: number
+  }
+  calculate_link_performance_score: {
+    Args: {
+      p_views: number
+      p_clicks: number
+      p_shares: number
+      p_time_on_page: number
+      p_bounce_rate: number
+    }
+    Returns: number
+  }
+  export_links_data: {
+    Args: {
+      format: string
+      start_date: string
+      end_date: string
+    }
+    Returns: string
+  }
+}
+
+// Helper types
 type PublicSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
@@ -332,19 +315,4 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
-  }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
