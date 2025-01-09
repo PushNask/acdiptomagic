@@ -14,61 +14,82 @@ interface ResourceCardProps {
 const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
+
+  const loadImageUrl = async () => {
+    try {
+      if (!resource) {
+        setIsLoading(false);
+        return;
+      }
+
+      let imagePath = null;
+
+      // First try to get image from resource_images
+      if (resource.resource_images?.[0]?.file_path) {
+        imagePath = resource.resource_images[0].file_path;
+      } 
+      // If no resource_images, try cover_image
+      else if (resource.cover_image) {
+        imagePath = resource.cover_image;
+      }
+
+      if (!imagePath) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Clean the path
+      imagePath = imagePath.replace(/^\/+/, '').replace(/^lovable-uploads\//, '');
+
+      const { data, error } = await supabase
+        .storage
+        .from('product-images')
+        .createSignedUrl(imagePath, 3600); // 1 hour expiration
+
+      if (error) {
+        console.error('Error creating signed URL:', error);
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.signedUrl) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        
+        img.onload = () => {
+          setImageUrl(data.signedUrl);
+          setIsLoading(false);
+          setRetryCount(0); // Reset retry count on success
+        };
+
+        img.onerror = () => {
+          console.error('Error loading image:', imagePath);
+          if (retryCount < MAX_RETRIES) {
+            setRetryCount(prev => prev + 1);
+            setTimeout(loadImageUrl, 1000 * (retryCount + 1)); // Exponential backoff
+          } else {
+            setImageUrl(null);
+            setIsLoading(false);
+            toast.error('Error loading resource image');
+          }
+        };
+
+        img.src = data.signedUrl;
+      } else {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error in loadImageUrl:', error);
+      setIsLoading(false);
+      toast.error('Error loading resource image');
+    }
+  };
 
   useEffect(() => {
-    const loadImageUrl = async () => {
-      try {
-        if (!resource) {
-          setIsLoading(false);
-          return;
-        }
-
-        let imagePath = null;
-
-        // First try to get image from resource_images
-        if (resource.resource_images?.[0]?.file_path) {
-          imagePath = resource.resource_images[0].file_path;
-        } 
-        // If no resource_images, try cover_image
-        else if (resource.cover_image) {
-          imagePath = resource.cover_image;
-        }
-
-        if (imagePath) {
-          const { data } = supabase
-            .storage
-            .from('product-images')
-            .getPublicUrl(imagePath);
-
-          if (data?.publicUrl) {
-            // Preload the image
-            const img = new Image();
-            img.src = data.publicUrl;
-            img.onload = () => {
-              setImageUrl(data.publicUrl);
-              setIsLoading(false);
-            };
-            img.onerror = () => {
-              console.error('Error loading image:', imagePath);
-              setImageUrl(null);
-              setIsLoading(false);
-              toast.error('Error loading resource image');
-            };
-          } else {
-            setIsLoading(false);
-          }
-        } else {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Error in loadImageUrl:', error);
-        setIsLoading(false);
-        toast.error('Error loading resource image');
-      }
-    };
-
     loadImageUrl();
-  }, [resource]);
+  }, [resource, retryCount]);
 
   if (!resource) {
     return <Skeleton className="h-[400px] w-full" />;
@@ -85,6 +106,8 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
               src={imageUrl}
               alt={resource.title}
               className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+              crossOrigin="anonymous"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
