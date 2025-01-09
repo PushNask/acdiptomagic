@@ -23,44 +23,35 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
           return;
         }
 
+        let imagePath = null;
+
         // First try to get image from resource_images
         if (resource.resource_images && resource.resource_images[0]) {
-          const { data: publicUrl } = supabase
-            .storage
-            .from('product-images')
-            .getPublicUrl(resource.resource_images[0].file_path);
-          
-          if (publicUrl) {
-            console.log('Using resource_images path:', resource.resource_images[0].file_path);
-            setImageUrl(publicUrl.publicUrl);
-          }
+          imagePath = resource.resource_images[0].file_path;
+          console.log('Using resource_images path:', imagePath);
         } 
         // If no resource_images, try cover_image
         else if (resource.cover_image) {
-          let finalImagePath = resource.cover_image;
-          
-          // Remove /lovable-uploads/ prefix if present
-          if (finalImagePath.startsWith('/lovable-uploads/')) {
-            finalImagePath = finalImagePath.replace('/lovable-uploads/', '');
-          }
+          imagePath = resource.cover_image;
+          console.log('Using cover_image path:', imagePath);
+        }
 
-          // Remove any leading slashes
-          finalImagePath = finalImagePath.replace(/^\/+/, '');
-          
-          console.log('Processing cover image for resource:', resource.id);
-          console.log('Original cover_image path:', resource.cover_image);
-          console.log('Final image path:', finalImagePath);
-          
+        if (imagePath) {
+          // Clean the path by removing any leading slashes and 'lovable-uploads'
+          imagePath = imagePath.replace(/^\/+/, '').replace(/^lovable-uploads\//, '');
+          console.log('Final cleaned image path:', imagePath);
+
           const { data: publicUrl } = supabase
             .storage
             .from('product-images')
-            .getPublicUrl(finalImagePath);
+            .getPublicUrl(imagePath);
           
           if (publicUrl) {
             console.log('Generated public URL:', publicUrl.publicUrl);
             setImageUrl(publicUrl.publicUrl);
           } else {
-            console.error('Failed to generate public URL for:', finalImagePath);
+            console.error('Failed to generate public URL for:', imagePath);
+            toast.error('Error loading resource image');
           }
         } else {
           console.warn('No image source found for resource:', resource.id);
@@ -92,7 +83,8 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
               alt={resource.title}
               className="absolute inset-0 w-full h-full object-cover"
               onError={(e) => {
-                console.error('Image load error for:', resource);
+                console.error('Image load error for resource:', resource.id);
+                console.error('Failed image URL:', imageUrl);
                 setImageUrl(null);
               }}
             />
