@@ -4,7 +4,7 @@ import {
   Facebook,
   Twitter,
   Linkedin,
-  WhatsApp,
+  MessageSquare,
   Link as LinkIcon,
 } from "lucide-react";
 
@@ -75,7 +75,7 @@ const ShareButtons = ({ url, title, description }: ShareButtonsProps) => {
         className="hover:bg-green-100"
         title="Share on WhatsApp"
       >
-        <WhatsApp className="h-4 w-4 text-green-600" />
+        <MessageSquare className="h-4 w-4 text-green-600" />
       </Button>
       <Button
         variant="outline"
