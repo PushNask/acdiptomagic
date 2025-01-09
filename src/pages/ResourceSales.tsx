@@ -64,6 +64,23 @@ const ResourceSales = () => {
     }
   };
 
+  const getImageUrl = (coverImage) => {
+    if (!coverImage) return '/placeholder.svg';
+    
+    // If the image path starts with /lovable-uploads, it's a local image
+    if (coverImage.startsWith('/lovable-uploads')) {
+      return coverImage;
+    }
+    
+    // If it's a full URL, use it directly
+    if (coverImage.startsWith('http')) {
+      return coverImage;
+    }
+    
+    // Otherwise, assume it's a relative path and prepend the public URL
+    return `/${coverImage}`;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">{category} Resources</h1>
@@ -72,24 +89,18 @@ const ResourceSales = () => {
         {resources?.map((resource) => (
           <Card key={resource.id} className="flex flex-col">
             <CardHeader>
-              <div className="aspect-video w-full bg-gray-100 rounded-t-lg mb-4">
-                {resource.cover_image ? (
-                  <img 
-                    src={resource.cover_image}
-                    alt={resource.title}
-                    className="w-full h-full object-cover rounded-t-lg"
-                    onError={(e) => {
-                      console.error('Image load error:', e);
-                      e.currentTarget.src = '/placeholder.svg';
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ShoppingCart className="h-12 w-12 text-gray-400" />
-                  </div>
-                )}
+              <div className="aspect-video w-full bg-gray-100 rounded-t-lg mb-4 overflow-hidden">
+                <img 
+                  src={getImageUrl(resource.cover_image)}
+                  alt={resource.title}
+                  className="w-full h-full object-cover rounded-t-lg"
+                  onError={(e) => {
+                    console.error('Image load error:', e);
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
+                />
               </div>
-              <CardTitle>{resource.title}</CardTitle>
+              <CardTitle className="text-xl">{resource.title}</CardTitle>
               <CardDescription>{resource.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
