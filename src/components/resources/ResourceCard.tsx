@@ -34,15 +34,29 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
         } 
         // Fallback to cover_image if no resource_images
         else if (resource.cover_image) {
-          if (resource.cover_image.startsWith('http')) {
+          // If the cover_image starts with /lovable-uploads/, it's already in the product-images bucket
+          if (resource.cover_image.startsWith('/lovable-uploads/')) {
+            const imagePath = resource.cover_image.replace('/lovable-uploads/', '');
+            const { data: publicUrl } = supabase
+              .storage
+              .from('product-images')
+              .getPublicUrl(imagePath);
+            
+            console.log('Cover image URL (from lovable-uploads):', publicUrl);
+            setImageUrl(publicUrl.publicUrl);
+          } 
+          // If it's a full URL, use it directly
+          else if (resource.cover_image.startsWith('http')) {
             setImageUrl(resource.cover_image);
-          } else {
+          } 
+          // Otherwise, assume it's a direct path in the product-images bucket
+          else {
             const { data: publicUrl } = supabase
               .storage
               .from('product-images')
               .getPublicUrl(resource.cover_image);
             
-            console.log('Cover image URL:', publicUrl);
+            console.log('Cover image URL (from direct path):', publicUrl);
             setImageUrl(publicUrl.publicUrl);
           }
         } else {
