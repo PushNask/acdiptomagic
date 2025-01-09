@@ -27,16 +27,22 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
       // First try to get image from resource_images
       if (resource.resource_images?.[0]?.file_path) {
         imagePath = resource.resource_images[0].file_path;
+        console.log('Using resource_images path:', imagePath);
       } 
       // If no resource_images, try cover_image
       else if (resource.cover_image) {
         imagePath = resource.cover_image;
+        console.log('Using cover_image path:', imagePath);
       }
 
       if (!imagePath) {
+        console.log('No image path found for resource:', resource.id);
         setIsLoading(false);
         return;
       }
+
+      // Log the full resource object for debugging
+      console.log('Resource object:', resource);
 
       // Get public URL directly since bucket is public
       const { data } = supabase
@@ -45,16 +51,29 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
         .getPublicUrl(imagePath);
 
       if (data?.publicUrl) {
+        console.log('Generated public URL:', data.publicUrl);
+        
+        // Verify the URL is accessible
+        const response = await fetch(data.publicUrl, { method: 'HEAD' });
+        if (!response.ok) {
+          throw new Error(`Image URL returned status ${response.status}`);
+        }
+
         const img = new Image();
         img.crossOrigin = "anonymous";
         
         img.onload = () => {
+          console.log('Image loaded successfully:', data.publicUrl);
           setImageUrl(data.publicUrl);
           setIsLoading(false);
         };
 
-        img.onerror = () => {
-          console.error('Error loading image:', imagePath);
+        img.onerror = (error) => {
+          console.error('Error loading image:', {
+            imagePath,
+            publicUrl: data.publicUrl,
+            error
+          });
           setImageUrl(null);
           setIsLoading(false);
           toast.error('Error loading resource image');
@@ -62,10 +81,14 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
 
         img.src = data.publicUrl;
       } else {
+        console.error('No public URL generated for path:', imagePath);
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Error in loadImageUrl:', error);
+      console.error('Error in loadImageUrl:', {
+        resourceId: resource?.id,
+        error
+      });
       setIsLoading(false);
       toast.error('Error loading resource image');
     }
@@ -92,6 +115,16 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
               className="absolute inset-0 w-full h-full object-cover"
               loading="lazy"
               crossOrigin="anonymous"
+              onError={(e) => {
+                console.error('Image render error:', {
+                  src: imageUrl,
+                  error: e
+                });
+                const target = e.target as HTMLImageElement;
+                target.onerror = null; // Prevent infinite error loop
+                setImageUrl(null);
+                toast.error('Error displaying resource image');
+              }}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
