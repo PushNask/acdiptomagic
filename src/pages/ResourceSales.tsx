@@ -67,18 +67,21 @@ const ResourceSales = () => {
   const getImageUrl = (coverImage) => {
     if (!coverImage) return '/placeholder.svg';
     
-    // If the image path starts with /lovable-uploads, it's a local image
-    if (coverImage.startsWith('/lovable-uploads')) {
-      return coverImage;
+    // Remove any leading slashes to prevent double slashes
+    const cleanPath = coverImage.replace(/^\/+/, '');
+    
+    // If it's a lovable upload, ensure the path is correct
+    if (cleanPath.startsWith('lovable-uploads/')) {
+      return `/${cleanPath}`;
     }
     
     // If it's a full URL, use it directly
-    if (coverImage.startsWith('http')) {
-      return coverImage;
+    if (cleanPath.startsWith('http')) {
+      return cleanPath;
     }
     
-    // Otherwise, assume it's a relative path and prepend the public URL
-    return `/${coverImage}`;
+    // Otherwise, assume it's a relative path
+    return `/${cleanPath}`;
   };
 
   return (
@@ -89,19 +92,25 @@ const ResourceSales = () => {
         {resources?.map((resource) => (
           <Card key={resource.id} className="flex flex-col">
             <CardHeader>
-              <div className="aspect-video w-full bg-gray-100 rounded-t-lg mb-4 overflow-hidden">
-                <img 
-                  src={getImageUrl(resource.cover_image)}
-                  alt={resource.title}
-                  className="w-full h-full object-cover rounded-t-lg"
-                  onError={(e) => {
-                    console.error('Image load error:', e);
-                    e.currentTarget.src = '/placeholder.svg';
-                  }}
-                />
+              <div className="relative aspect-[16/9] w-full bg-gray-100 rounded-t-lg mb-4 overflow-hidden">
+                {resource.cover_image ? (
+                  <img 
+                    src={getImageUrl(resource.cover_image)}
+                    alt={resource.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => {
+                      console.error('Image load error for:', resource.cover_image);
+                      e.currentTarget.src = '/placeholder.svg';
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <ShoppingCart className="h-12 w-12 text-gray-400" />
+                  </div>
+                )}
               </div>
-              <CardTitle className="text-xl">{resource.title}</CardTitle>
-              <CardDescription>{resource.description}</CardDescription>
+              <CardTitle className="text-xl line-clamp-2">{resource.title}</CardTitle>
+              <CardDescription className="line-clamp-3">{resource.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
               <div className="flex-1" />
