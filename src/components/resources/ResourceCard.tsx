@@ -27,10 +27,12 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
       // First try to get image from resource_images
       if (resource.resource_images?.[0]?.file_path) {
         imagePath = resource.resource_images[0].file_path;
+        console.log('Using resource_images path:', imagePath);
       } 
       // If no resource_images, try cover_image
       else if (resource.cover_image) {
         imagePath = resource.cover_image;
+        console.log('Using cover_image path:', imagePath);
       }
 
       if (!imagePath) {
@@ -48,28 +50,9 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
 
       if (publicUrlData?.publicUrl) {
         console.log('Generated public URL:', publicUrlData.publicUrl);
-        
-        // Create a new image object to test loading
-        const img = new Image();
-        
-        img.onload = () => {
-          setImageUrl(publicUrlData.publicUrl);
-          setIsLoading(false);
-          setLoadError(false);
-        };
-
-        img.onerror = () => {
-          console.error('Error loading image:', {
-            imagePath,
-            publicUrl: publicUrlData.publicUrl,
-            resource: resource.title
-          });
-          setImageUrl(null);
-          setIsLoading(false);
-          setLoadError(true);
-        };
-
-        img.src = publicUrlData.publicUrl;
+        setImageUrl(publicUrlData.publicUrl);
+        setIsLoading(false);
+        setLoadError(false);
       } else {
         console.error('No public URL generated for image:', imagePath);
         setIsLoading(false);
