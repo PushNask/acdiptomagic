@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ShoppingCart, DollarSign, Phone } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ResourceSales = () => {
   const { category } = useParams();
@@ -17,28 +18,81 @@ const ResourceSales = () => {
   const { data: resources, isLoading, error } = useQuery({
     queryKey: ['resources', category],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First, get the resources
+      const { data: resourcesData, error: resourcesError } = await supabase
         .from('resources')
-        .select('*')
+        .select(`
+          *,
+          resource_images (
+            file_path,
+            file_name
+          )
+        `)
         .eq('category', category)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (resourcesError) throw resourcesError;
+      
+      console.log('Resources data:', resourcesData); // Debug log
+      return resourcesData;
     },
   });
+
+  const getImageUrl = async (resource) => {
+    if (!resource) return '/placeholder.svg';
+
+    // If the resource has associated images, use the first one
+    if (resource.resource_images && resource.resource_images[0]) {
+      const { data: publicUrl } = supabase
+        .storage
+        .from('product-images')
+        .getPublicUrl(resource.resource_images[0].file_path);
+      
+      console.log('Public URL:', publicUrl); // Debug log
+      return publicUrl.publicUrl;
+    }
+
+    // Fallback to cover_image if no resource_images
+    if (resource.cover_image) {
+      if (resource.cover_image.startsWith('http')) {
+        return resource.cover_image;
+      }
+      
+      const { data: publicUrl } = supabase
+        .storage
+        .from('product-images')
+        .getPublicUrl(resource.cover_image);
+      
+      return publicUrl.publicUrl;
+    }
+
+    // Final fallback
+    return '/placeholder.svg';
+  };
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p>Loading resources...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-[200px] w-full rounded-lg" />
+                <Skeleton className="h-4 w-3/4 mt-4" />
+                <Skeleton className="h-4 w-full mt-2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-full mt-4" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );
   }
 
   if (error) {
+    console.error('Error loading resources:', error);
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -64,26 +118,6 @@ const ResourceSales = () => {
     }
   };
 
-  const getImageUrl = (coverImage) => {
-    if (!coverImage) return '/placeholder.svg';
-    
-    // Remove any leading slashes to prevent double slashes
-    const cleanPath = coverImage.replace(/^\/+/, '');
-    
-    // If it's a lovable upload, ensure the path is correct
-    if (cleanPath.startsWith('lovable-uploads/')) {
-      return `/${cleanPath}`;
-    }
-    
-    // If it's a full URL, use it directly
-    if (cleanPath.startsWith('http')) {
-      return cleanPath;
-    }
-    
-    // Otherwise, assume it's a relative path
-    return `/${cleanPath}`;
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">{category} Resources</h1>
@@ -93,21 +127,15 @@ const ResourceSales = () => {
           <Card key={resource.id} className="flex flex-col">
             <CardHeader>
               <div className="relative aspect-[16/9] w-full bg-gray-100 rounded-t-lg mb-4 overflow-hidden">
-                {resource.cover_image ? (
-                  <img 
-                    src={getImageUrl(resource.cover_image)}
-                    alt={resource.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => {
-                      console.error('Image load error for:', resource.cover_image);
-                      e.currentTarget.src = '/placeholder.svg';
-                    }}
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <ShoppingCart className="h-12 w-12 text-gray-400" />
-                  </div>
-                )}
+                <img 
+                  src={getImageUrl(resource)}
+                  alt={resource.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error('Image load error for:', resource);
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
+                />
               </div>
               <CardTitle className="text-xl line-clamp-2">{resource.title}</CardTitle>
               <CardDescription className="line-clamp-3">{resource.description}</CardDescription>

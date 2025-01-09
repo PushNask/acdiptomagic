@@ -136,6 +136,47 @@ export type Database = {
         }
         Relationships: []
       }
+      resource_images: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_path: string
+          id: string
+          mime_type: string | null
+          resource_id: string
+          size: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          mime_type?: string | null
+          resource_id: string
+          size?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          mime_type?: string | null
+          resource_id?: string
+          size?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_images_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resources: {
         Row: {
           category: string
