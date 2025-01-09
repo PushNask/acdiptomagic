@@ -46,13 +46,34 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
       const { data: publicUrlData } = supabase
         .storage
         .from('product-images')
-        .getPublicUrl(imagePath);
+        .getPublicUrl(decodeURIComponent(imagePath));
 
       if (publicUrlData?.publicUrl) {
-        console.log('Generated public URL:', publicUrlData.publicUrl);
-        setImageUrl(publicUrlData.publicUrl);
-        setIsLoading(false);
-        setLoadError(false);
+        const encodedUrl = encodeURI(publicUrlData.publicUrl);
+        console.log('Generated and encoded public URL:', encodedUrl);
+        
+        // Create a new image object to test loading
+        const img = new Image();
+        
+        img.onload = () => {
+          setImageUrl(encodedUrl);
+          setIsLoading(false);
+          setLoadError(false);
+        };
+
+        img.onerror = (e) => {
+          console.error('Error loading image:', {
+            originalPath: imagePath,
+            encodedUrl,
+            error: e,
+            resource: resource.title
+          });
+          setImageUrl(null);
+          setIsLoading(false);
+          setLoadError(true);
+        };
+
+        img.src = encodedUrl;
       } else {
         console.error('No public URL generated for image:', imagePath);
         setIsLoading(false);
