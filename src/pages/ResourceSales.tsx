@@ -73,11 +73,15 @@ const ResourceSales = () => {
           <Card key={resource.id} className="flex flex-col">
             <CardHeader>
               <div className="aspect-video w-full bg-gray-100 rounded-t-lg mb-4">
-                {(resource.cover_image || resource.file_url) ? (
+                {resource.cover_image ? (
                   <img 
-                    src={resource.cover_image || resource.file_url} 
+                    src={resource.cover_image}
                     alt={resource.title}
                     className="w-full h-full object-cover rounded-t-lg"
+                    onError={(e) => {
+                      console.error('Image load error:', e);
+                      e.currentTarget.src = '/placeholder.svg';
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
