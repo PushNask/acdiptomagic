@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DollarSign } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 interface ResourceCardProps {
   resource: any;
@@ -34,30 +35,27 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
         } 
         // Fallback to cover_image if no resource_images
         else if (resource.cover_image) {
-          // If the cover_image starts with /lovable-uploads/, it's already in the product-images bucket
-          if (resource.cover_image.startsWith('/lovable-uploads/')) {
-            const imagePath = resource.cover_image.replace('/lovable-uploads/', '');
-            const { data: publicUrl } = supabase
-              .storage
-              .from('product-images')
-              .getPublicUrl(imagePath);
-            
-            console.log('Cover image URL (from lovable-uploads):', publicUrl);
+          let finalImagePath = resource.cover_image;
+          
+          // If the path starts with /lovable-uploads/, remove it
+          if (finalImagePath.startsWith('/lovable-uploads/')) {
+            finalImagePath = finalImagePath.replace('/lovable-uploads/', '');
+          }
+          
+          // Get the public URL from Supabase storage
+          const { data: publicUrl } = supabase
+            .storage
+            .from('product-images')
+            .getPublicUrl(finalImagePath);
+          
+          console.log('Cover image path:', finalImagePath);
+          console.log('Cover image public URL:', publicUrl);
+          
+          if (publicUrl) {
             setImageUrl(publicUrl.publicUrl);
-          } 
-          // If it's a full URL, use it directly
-          else if (resource.cover_image.startsWith('http')) {
-            setImageUrl(resource.cover_image);
-          } 
-          // Otherwise, assume it's a direct path in the product-images bucket
-          else {
-            const { data: publicUrl } = supabase
-              .storage
-              .from('product-images')
-              .getPublicUrl(resource.cover_image);
-            
-            console.log('Cover image URL (from direct path):', publicUrl);
-            setImageUrl(publicUrl.publicUrl);
+          } else {
+            console.error('Failed to get public URL for:', finalImagePath);
+            setImageUrl('/placeholder.svg');
           }
         } else {
           console.log('No image found for resource:', resource.id);
@@ -65,6 +63,7 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
         }
       } catch (error) {
         console.error('Error loading image for resource:', error);
+        toast.error('Error loading resource image');
         setImageUrl('/placeholder.svg');
       } finally {
         setIsLoading(false);
