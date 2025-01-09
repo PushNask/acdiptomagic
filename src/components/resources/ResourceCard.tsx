@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { DollarSign, ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 
 interface ResourceCardProps {
   resource: any;
@@ -28,66 +27,50 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
       // First try to get image from resource_images
       if (resource.resource_images?.[0]?.file_path) {
         imagePath = resource.resource_images[0].file_path;
-        console.log('Using resource_images path:', imagePath);
       } 
       // If no resource_images, try cover_image
       else if (resource.cover_image) {
         imagePath = resource.cover_image;
-        console.log('Using cover_image path:', imagePath);
       }
 
       if (!imagePath) {
-        console.log('No image path found for resource:', resource.id);
         setIsLoading(false);
         setLoadError(true);
         return;
       }
 
-      // Log the full resource object for debugging
-      console.log('Resource object:', resource);
-
-      // Get public URL directly since bucket is public
-      const { data } = supabase
+      const { data: publicUrlData } = supabase
         .storage
         .from('product-images')
         .getPublicUrl(imagePath);
 
-      if (data?.publicUrl) {
-        console.log('Generated public URL:', data.publicUrl);
-        
+      if (publicUrlData?.publicUrl) {
         // Pre-load the image
         const img = new Image();
-        img.crossOrigin = "anonymous";
         
         img.onload = () => {
-          console.log('Image loaded successfully:', data.publicUrl);
-          setImageUrl(data.publicUrl);
+          setImageUrl(publicUrlData.publicUrl);
           setIsLoading(false);
           setLoadError(false);
         };
 
-        img.onerror = (error) => {
+        img.onerror = () => {
           console.error('Error loading image:', {
             imagePath,
-            publicUrl: data.publicUrl,
-            error
+            publicUrl: publicUrlData.publicUrl
           });
           setImageUrl(null);
           setIsLoading(false);
           setLoadError(true);
         };
 
-        img.src = data.publicUrl;
+        img.src = publicUrlData.publicUrl;
       } else {
-        console.error('No public URL generated for path:', imagePath);
         setIsLoading(false);
         setLoadError(true);
       }
     } catch (error) {
-      console.error('Error in loadImageUrl:', {
-        resourceId: resource?.id,
-        error
-      });
+      console.error('Error in loadImageUrl:', error);
       setIsLoading(false);
       setLoadError(true);
     }
@@ -115,7 +98,6 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
               alt={resource.title}
               className="absolute inset-0 w-full h-full object-cover"
               loading="lazy"
-              crossOrigin="anonymous"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
