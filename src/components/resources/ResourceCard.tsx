@@ -34,17 +34,21 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
       }
 
       if (!imagePath) {
+        console.log('No image path found for resource:', resource);
         setIsLoading(false);
         setLoadError(true);
         return;
       }
 
+      // Get the public URL for the image from the product-images bucket
       const { data: publicUrlData } = supabase
         .storage
         .from('product-images')
         .getPublicUrl(imagePath);
 
       if (publicUrlData?.publicUrl) {
+        console.log('Generated public URL:', publicUrlData.publicUrl);
+        
         // Pre-load the image
         const img = new Image();
         
@@ -57,7 +61,8 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
         img.onerror = () => {
           console.error('Error loading image:', {
             imagePath,
-            publicUrl: publicUrlData.publicUrl
+            publicUrl: publicUrlData.publicUrl,
+            resource: resource.title
           });
           setImageUrl(null);
           setIsLoading(false);
@@ -66,6 +71,7 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
 
         img.src = publicUrlData.publicUrl;
       } else {
+        console.error('No public URL generated for image:', imagePath);
         setIsLoading(false);
         setLoadError(true);
       }
