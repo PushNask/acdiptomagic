@@ -14,8 +14,6 @@ interface ResourceCardProps {
 const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 3;
 
   const loadImageUrl = async () => {
     try {
@@ -40,43 +38,29 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
         return;
       }
 
-      // Clean the path
-      imagePath = imagePath.replace(/^\/+/, '').replace(/^lovable-uploads\//, '');
-
-      const { data, error } = await supabase
+      // Get public URL directly since bucket is public
+      const { data } = supabase
         .storage
         .from('product-images')
-        .createSignedUrl(imagePath, 3600); // 1 hour expiration
+        .getPublicUrl(imagePath);
 
-      if (error) {
-        console.error('Error creating signed URL:', error);
-        setIsLoading(false);
-        return;
-      }
-
-      if (data?.signedUrl) {
+      if (data?.publicUrl) {
         const img = new Image();
         img.crossOrigin = "anonymous";
         
         img.onload = () => {
-          setImageUrl(data.signedUrl);
+          setImageUrl(data.publicUrl);
           setIsLoading(false);
-          setRetryCount(0); // Reset retry count on success
         };
 
         img.onerror = () => {
           console.error('Error loading image:', imagePath);
-          if (retryCount < MAX_RETRIES) {
-            setRetryCount(prev => prev + 1);
-            setTimeout(loadImageUrl, 1000 * (retryCount + 1)); // Exponential backoff
-          } else {
-            setImageUrl(null);
-            setIsLoading(false);
-            toast.error('Error loading resource image');
-          }
+          setImageUrl(null);
+          setIsLoading(false);
+          toast.error('Error loading resource image');
         };
 
-        img.src = data.signedUrl;
+        img.src = data.publicUrl;
       } else {
         setIsLoading(false);
       }
@@ -89,7 +73,7 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
 
   useEffect(() => {
     loadImageUrl();
-  }, [resource, retryCount]);
+  }, [resource]);
 
   if (!resource) {
     return <Skeleton className="h-[400px] w-full" />;
