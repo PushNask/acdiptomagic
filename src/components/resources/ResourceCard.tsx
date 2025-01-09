@@ -23,16 +23,19 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
           return;
         }
 
-        // If the resource has associated images, use the first one
+        // First try to get image from resource_images
         if (resource.resource_images && resource.resource_images[0]) {
           const { data: publicUrl } = supabase
             .storage
             .from('product-images')
             .getPublicUrl(resource.resource_images[0].file_path);
           
-          setImageUrl(publicUrl.publicUrl);
+          if (publicUrl) {
+            console.log('Using resource_images path:', resource.resource_images[0].file_path);
+            setImageUrl(publicUrl.publicUrl);
+          }
         } 
-        // Use cover_image if no resource_images
+        // If no resource_images, try cover_image
         else if (resource.cover_image) {
           let finalImagePath = resource.cover_image;
           
@@ -40,19 +43,27 @@ const ResourceCard = ({ resource, onBuyClick }: ResourceCardProps) => {
           if (finalImagePath.startsWith('/lovable-uploads/')) {
             finalImagePath = finalImagePath.replace('/lovable-uploads/', '');
           }
+
+          // Remove any leading slashes
+          finalImagePath = finalImagePath.replace(/^\/+/, '');
+          
+          console.log('Processing cover image for resource:', resource.id);
+          console.log('Original cover_image path:', resource.cover_image);
+          console.log('Final image path:', finalImagePath);
           
           const { data: publicUrl } = supabase
             .storage
             .from('product-images')
             .getPublicUrl(finalImagePath);
           
-          console.log('Loading image for resource:', resource.id);
-          console.log('Final image path:', finalImagePath);
-          console.log('Public URL:', publicUrl);
-          
           if (publicUrl) {
+            console.log('Generated public URL:', publicUrl.publicUrl);
             setImageUrl(publicUrl.publicUrl);
+          } else {
+            console.error('Failed to generate public URL for:', finalImagePath);
           }
+        } else {
+          console.warn('No image source found for resource:', resource.id);
         }
       } catch (error) {
         console.error('Error loading image for resource:', error);
