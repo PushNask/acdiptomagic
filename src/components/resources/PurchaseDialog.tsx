@@ -41,6 +41,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
 
     setIsVerifying(true);
     try {
+      // First, verify the purchase code
       const { data: codeData, error: codeError } = await supabase
         .from('purchase_codes')
         .select('*')
@@ -61,6 +62,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         return;
       }
 
+      // Mark the code as used before starting the download
       const { error: updateError } = await supabase
         .from('purchase_codes')
         .update({
@@ -75,6 +77,19 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         throw updateError;
       }
 
+      // Create a user purchase record
+      const { error: purchaseError } = await supabase
+        .from('user_purchases')
+        .insert({
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          resource_id: selectedResource.id,
+          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year access
+        });
+
+      if (purchaseError) {
+        console.error('Error creating purchase record:', purchaseError);
+      }
+
       // Trigger the download
       const link = document.createElement('a');
       link.href = selectedResource.file_url;
@@ -85,7 +100,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
 
       toast({
         title: "Success!",
-        description: "Your download has started.",
+        description: "Your download has started. The purchase code has been marked as used.",
       });
 
       onOpenChange(false);
@@ -121,7 +136,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
             3. Price: ${selectedResource?.price?.toFixed(2)}
           </p>
           <p className="text-sm">
-            4. You'll receive access instructions within 24 hours after payment confirmation.
+            4. You'll receive a purchase code within 24 hours after payment confirmation.
           </p>
           
           {!showCodeInput ? (
