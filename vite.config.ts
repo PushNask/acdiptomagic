@@ -15,10 +15,16 @@ export default defineConfig(({ mode }) => ({
       credentials: true
     },
     hmr: {
-      protocol: 'wss',
-      clientPort: 443,
-      host: `cc0ca1fd-d388-4ca9-b3c3-e7409e536f14.lovableproject.com`,
-      path: '/hmr/'
+      protocol: 'ws',
+      clientPort: 8080,
+      timeout: 5000,
+      overlay: true,
+      path: '/hmr/',
+      // Add error handling for HMR
+      onTimeout: () => {
+        console.warn('HMR connection timeout, attempting to reconnect...');
+      },
+      reconnect: true
     }
   },
   preview: {

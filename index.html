@@ -15,11 +15,21 @@
     <meta name="author" content="AcDiToPush" />
     <meta name="robots" content="index, follow" />
     <script>
-      window.addEventListener('error', function(e) {
+      // More robust error handling for script loading
+      function handleScriptError(e) {
         if (e.target.src && e.target.src.includes('gptengineer.js')) {
           console.warn('GPT Engineer script failed to load, continuing without it');
+          // Remove the failed script
+          e.target.remove();
+          // Attempt to reload the script
+          const retryScript = document.createElement('script');
+          retryScript.src = 'https://cdn.gpteng.co/gptengineer.js';
+          retryScript.type = 'module';
+          retryScript.onerror = () => console.warn('Failed to reload GPT Engineer script');
+          document.head.appendChild(retryScript);
         }
-      }, true);
+      }
+      window.addEventListener('error', handleScriptError, true);
     </script>
   </head>
   <body>
@@ -27,7 +37,7 @@
     <script 
       src="https://cdn.gpteng.co/gptengineer.js" 
       type="module"
-      onerror="console.warn('GPT Engineer script failed to load, continuing without it')"
+      onerror="handleScriptError(event)"
     ></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
