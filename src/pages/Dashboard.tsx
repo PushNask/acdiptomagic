@@ -7,10 +7,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import QuickStats from "@/components/dashboard/QuickStats";
 import ServiceCard from "@/components/dashboard/ServiceCard";
-import { useToast } from "@/components/ui/use-toast";
+import { ProgressIndicator } from "@/components/dashboard/ProgressIndicator";
+import { ContextualHelp } from "@/components/shared/ContextualHelp";
+import { useToast } from "@/hooks/use-toast";
 import { availableServices } from "@/data/services";
 
 const Dashboard = () => {
@@ -49,6 +50,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <ContextualHelp context="dashboard" />
               <Button variant="outline" size="sm" className="hidden md:flex items-center">
                 <Phone className="h-4 w-4 mr-2" />
                 Schedule Call
@@ -64,68 +66,78 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6 pb-20 md:pb-6">
-        <QuickStats />
-        
-        {/* Search and Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search services..." 
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        <div className="grid gap-6 md:grid-cols-[1fr_300px]">
+          <div className="space-y-6">
+            <QuickStats />
+            
+            {/* Search and Filter Bar */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search services..." 
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex items-center">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filters
+                </Button>
+                <Button>
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  New Request
+                </Button>
+              </div>
+            </div>
+
+            {/* Tabs Content */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="grid grid-cols-4 w-full max-w-2xl">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="services">Services</TabsTrigger>
+                <TabsTrigger value="resources">Resources</TabsTrigger>
+                <TabsTrigger value="billing">Billing</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="services" className="space-y-6">
+                {Object.entries(availableServices).map(([category, services]) => (
+                  <div key={category} className="space-y-4">
+                    <h2 className="text-xl font-semibold capitalize">
+                      {category.replace(/([A-Z])/g, ' $1').trim()}
+                    </h2>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {services.map(service => (
+                        <ServiceCard 
+                          key={service.id} 
+                          service={service}
+                          onRequest={handleServiceRequest}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </TabsContent>
+
+              <TabsContent value="overview">
+                <div className="grid gap-4">
+                  <h2 className="text-xl font-semibold">Welcome to Your Dashboard</h2>
+                  <p className="text-muted-foreground">
+                    Track your projects, manage services, and access resources all in one place.
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex items-center">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
-            <Button>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              New Request
-            </Button>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <ProgressIndicator />
+            {/* Additional sidebar content can go here */}
           </div>
         </div>
-
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-4 w-full max-w-2xl">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="resources">Resources</TabsTrigger>
-            <TabsTrigger value="billing">Billing</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="services" className="space-y-6">
-            {Object.entries(availableServices).map(([category, services]) => (
-              <div key={category} className="space-y-4">
-                <h2 className="text-xl font-semibold capitalize">
-                  {category.replace(/([A-Z])/g, ' $1').trim()}
-                </h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {services.map(service => (
-                    <ServiceCard 
-                      key={service.id} 
-                      service={service}
-                      onRequest={handleServiceRequest}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="overview">
-            <div className="grid gap-4">
-              <h2 className="text-xl font-semibold">Welcome to Your Dashboard</h2>
-              <p className="text-muted-foreground">
-                Track your projects, manage services, and access resources all in one place.
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
       </main>
 
       {/* Mobile Navigation */}
