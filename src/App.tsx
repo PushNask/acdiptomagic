@@ -34,7 +34,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       retry: 1,
     },
   },
@@ -52,13 +52,9 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
       setUser(currentUser ?? null);
 
       if (currentUser) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', currentUser.id)
-          .single();
-        
-        setIsAdmin(profile?.user_type === 'admin');
+        // Get the user_type directly from the JWT claims
+        const isAdminUser = session?.user.app_metadata.user_type === 'admin';
+        setIsAdmin(isAdminUser);
       }
 
       setLoading(false);
@@ -71,13 +67,9 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
       setUser(currentUser ?? null);
 
       if (currentUser) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', currentUser.id)
-          .single();
-        
-        setIsAdmin(profile?.user_type === 'admin');
+        // Get the user_type directly from the JWT claims
+        const isAdminUser = session?.user.app_metadata.user_type === 'admin';
+        setIsAdmin(isAdminUser);
       }
 
       setLoading(false);
