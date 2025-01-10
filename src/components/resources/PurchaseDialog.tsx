@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Phone } from 'lucide-react';
+import { Phone, Download } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PurchaseDialogProps {
   isOpen: boolean;
@@ -11,6 +14,9 @@ interface PurchaseDialogProps {
 
 const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDialogProps) => {
   const { toast } = useToast();
+  const [purchaseCode, setPurchaseCode] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [showCodeInput, setShowCodeInput] = useState(false);
 
   const handleContactSales = () => {
     if (selectedResource) {
@@ -20,6 +26,76 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         title: "Contact Sales",
         description: "Redirecting to phone call...",
       });
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!purchaseCode || purchaseCode.length !== 6) {
+      toast({
+        title: "Invalid Code",
+        description: "Please enter a valid 6-digit purchase code.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      // First, check if the code exists and hasn't been used
+      const { data: codeData, error: codeError } = await supabase
+        .from('purchase_codes')
+        .select('*')
+        .eq('code', purchaseCode)
+        .eq('is_used', false)
+        .single();
+
+      if (codeError || !codeData) {
+        toast({
+          title: "Invalid Code",
+          description: "This code is invalid or has already been used.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Mark the code as used
+      const { error: updateError } = await supabase
+        .from('purchase_codes')
+        .update({
+          is_used: true,
+          used_at: new Date().toISOString(),
+          used_by_user_id: (await supabase.auth.getUser()).data.user?.id,
+          used_for_resource_id: selectedResource.id
+        })
+        .eq('id', codeData.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      // Trigger the download
+      const link = document.createElement('a');
+      link.href = selectedResource.file_url;
+      link.download = selectedResource.title;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "Success!",
+        description: "Your download has started.",
+      });
+
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while processing your request.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -45,6 +121,36 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
           <p className="text-sm">
             4. You'll receive access instructions within 24 hours after payment confirmation.
           </p>
+          
+          {!showCodeInput ? (
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setShowCodeInput(true)}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              I already have a purchase code
+            </Button>
+          ) : (
+            <div className="space-y-2">
+              <Input
+                type="text"
+                placeholder="Enter your 6-digit purchase code"
+                value={purchaseCode}
+                onChange={(e) => setPurchaseCode(e.target.value.slice(0, 6))}
+                maxLength={6}
+              />
+              <Button 
+                className="w-full"
+                onClick={handleDownload}
+                disabled={isVerifying}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                {isVerifying ? "Verifying..." : "Download"}
+              </Button>
+            </div>
+          )}
+
           <div className="flex gap-4">
             <Button 
               className="flex-1"
