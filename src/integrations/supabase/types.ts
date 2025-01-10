@@ -100,6 +100,47 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          payment_date: string | null
+          payment_method: string | null
+          reference_number: string | null
+          service_request_id: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          payment_date?: string | null
+          payment_method?: string | null
+          reference_number?: string | null
+          service_request_id?: string | null
+          status: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          payment_date?: string | null
+          payment_method?: string | null
+          reference_number?: string | null
+          service_request_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company_logo: string | null
@@ -258,6 +299,109 @@ export type Database = {
         }
         Relationships: []
       }
+      service_requests: {
+        Row: {
+          assigned_to: string | null
+          client_id: string | null
+          cost: number | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          paid_amount: number | null
+          priority:
+            | Database["public"]["Enums"]["service_request_priority"]
+            | null
+          request_date: string | null
+          service_type_id: string | null
+          status: Database["public"]["Enums"]["service_request_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          client_id?: string | null
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          paid_amount?: number | null
+          priority?:
+            | Database["public"]["Enums"]["service_request_priority"]
+            | null
+          request_date?: string | null
+          service_type_id?: string | null
+          status?: Database["public"]["Enums"]["service_request_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          client_id?: string | null
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          paid_amount?: number | null
+          priority?:
+            | Database["public"]["Enums"]["service_request_priority"]
+            | null
+          request_date?: string | null
+          service_type_id?: string | null
+          status?: Database["public"]["Enums"]["service_request_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "service_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_types: {
+        Row: {
+          base_cost: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          base_cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          base_cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_purchases: {
         Row: {
           created_at: string | null
@@ -339,7 +483,12 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      service_request_priority: "low" | "medium" | "high"
+      service_request_status:
+        | "new"
+        | "in_progress"
+        | "pending_payment"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never

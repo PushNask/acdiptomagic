@@ -29,8 +29,8 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/admin/Dashboard";
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -40,20 +40,46 @@ const queryClient = new QueryClient({
   },
 });
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute = ({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check current auth status
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const currentUser = session?.user;
+      setUser(currentUser ?? null);
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
+      if (currentUser) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', currentUser.id)
+          .single();
+        
+        setIsAdmin(profile?.user_type === 'admin');
+      }
+
+      setLoading(false);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
+      const currentUser = session?.user;
+      setUser(currentUser ?? null);
+
+      if (currentUser) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', currentUser.id)
+          .single();
+        
+        setIsAdmin(profile?.user_type === 'admin');
+      }
+
       setLoading(false);
     });
 
@@ -66,6 +92,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -101,6 +131,13 @@ const App = () => {
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                } />
+
+                {/* Admin routes */}
+                <Route path="/admin" element={
+                  <ProtectedRoute adminOnly>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 } />
 
