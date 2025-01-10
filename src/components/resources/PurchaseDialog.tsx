@@ -46,9 +46,13 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         .select('*')
         .eq('code', purchaseCode)
         .eq('is_used', false)
-        .single();
+        .maybeSingle();
 
-      if (codeError || !codeData) {
+      if (codeError) {
+        throw codeError;
+      }
+
+      if (!codeData) {
         toast({
           title: "Invalid Code",
           description: "This code is invalid or has already been used.",

@@ -136,6 +136,51 @@ export type Database = {
         }
         Relationships: []
       }
+      purchase_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          id: string
+          is_used: boolean | null
+          used_at: string | null
+          used_by_user_id: string | null
+          used_for_resource_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          used_at?: string | null
+          used_by_user_id?: string | null
+          used_for_resource_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          used_at?: string | null
+          used_by_user_id?: string | null
+          used_for_resource_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_codes_used_by_user_id_fkey"
+            columns: ["used_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_codes_used_for_resource_id_fkey"
+            columns: ["used_for_resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resource_images: {
         Row: {
           created_at: string | null
