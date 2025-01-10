@@ -41,7 +41,23 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
 
     setIsVerifying(true);
     try {
-      // First, verify the purchase code
+      // Get current user session first
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to download resources.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Then verify the purchase code
       const { data: codeData, error: codeError } = await supabase
         .from('purchase_codes')
         .select('*')
@@ -57,22 +73,6 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         toast({
           title: "Invalid Code",
           description: "This code is invalid or has already been used.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Get current user session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        throw sessionError;
-      }
-
-      if (!session) {
-        toast({
-          title: "Authentication Required",
-          description: "Please log in to download resources.",
           variant: "destructive",
         });
         return;
