@@ -21,11 +21,16 @@ const Login = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         // Check if user is admin
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('user_type')
           .eq('id', session.user.id)
           .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          return;
+        }
 
         if (profile?.user_type === 'admin') {
           navigate("/admin");
@@ -67,11 +72,17 @@ const Login = () => {
 
       if (session) {
         // Check if user is admin
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('user_type')
           .eq('id', session.user.id)
           .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          setError("Error fetching user profile");
+          return;
+        }
 
         toast({
           title: "Login Successful",
