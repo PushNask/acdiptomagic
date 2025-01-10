@@ -52,9 +52,14 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
       setUser(currentUser ?? null);
 
       if (currentUser) {
-        // Get the user_type directly from the JWT claims
-        const isAdminUser = session?.user.app_metadata.user_type === 'admin';
-        setIsAdmin(isAdminUser);
+        // Get the user_type from the profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', currentUser.id)
+          .single();
+        
+        setIsAdmin(profile?.user_type === 'admin');
       }
 
       setLoading(false);
@@ -67,9 +72,14 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
       setUser(currentUser ?? null);
 
       if (currentUser) {
-        // Get the user_type directly from the JWT claims
-        const isAdminUser = session?.user.app_metadata.user_type === 'admin';
-        setIsAdmin(isAdminUser);
+        // Get the user_type from the profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', currentUser.id)
+          .single();
+        
+        setIsAdmin(profile?.user_type === 'admin');
       }
 
       setLoading(false);
@@ -86,8 +96,14 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
     return <Navigate to="/login" replace />;
   }
 
+  // If this is an admin-only route and the user is not an admin
   if (adminOnly && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // If the user is an admin and they're trying to access the regular dashboard
+  if (isAdmin && !adminOnly && window.location.pathname === '/dashboard') {
+    return <Navigate to="/admin" replace />;
   }
 
   return <>{children}</>;

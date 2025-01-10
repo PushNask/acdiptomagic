@@ -17,11 +17,25 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/dashboard");
+        // Check if user is admin
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile?.user_type === 'admin') {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       }
-    });
+    };
+
+    checkSession();
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -30,7 +44,7 @@ const Login = () => {
     setError("");
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -51,11 +65,26 @@ const Login = () => {
         return;
       }
 
-      // If successful, the auth state change listener in App.tsx will handle navigation
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
+      if (session) {
+        // Check if user is admin
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', session.user.id)
+          .single();
+
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+
+        // Redirect based on user type
+        if (profile?.user_type === 'admin') {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
+      }
     } catch (error: any) {
       setError(error.message);
     } finally {
