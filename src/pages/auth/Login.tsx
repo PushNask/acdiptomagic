@@ -32,6 +32,9 @@ const Login = () => {
           return;
         }
 
+        // Log the profile data for debugging
+        console.log('Profile data:', profile);
+
         if (profile?.user_type === 'admin') {
           navigate("/admin");
         } else {
@@ -83,6 +86,9 @@ const Login = () => {
           setError("Error fetching user profile");
           return;
         }
+
+        // Log the profile data for debugging
+        console.log('Profile data after login:', profile);
 
         toast({
           title: "Login Successful",
