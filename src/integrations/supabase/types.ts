@@ -47,6 +47,33 @@ export type Database = {
           },
         ]
       }
+      help_content: {
+        Row: {
+          content: string
+          context: string | null
+          created_at: string | null
+          id: string
+          topic: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          topic: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          topic?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount: number
@@ -149,7 +176,10 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          last_login: string | null
+          onboarding_completed: boolean | null
           phone_number: string | null
+          setup_progress: number | null
           updated_at: string | null
           user_type: string | null
         }
@@ -160,7 +190,10 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          last_login?: string | null
+          onboarding_completed?: boolean | null
           phone_number?: string | null
+          setup_progress?: number | null
           updated_at?: string | null
           user_type?: string | null
         }
@@ -171,7 +204,10 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          last_login?: string | null
+          onboarding_completed?: boolean | null
           phone_number?: string | null
+          setup_progress?: number | null
           updated_at?: string | null
           user_type?: string | null
         }
@@ -401,6 +437,41 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      user_progress_steps: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          step_name: string
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          step_name: string
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          step_name?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_steps_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_purchases: {
         Row: {
