@@ -1,18 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { generateInvoiceHTML } from "@/utils/invoiceGenerator";
-import { ClientDetails, InvoiceFormData } from "@/types/invoice";
-
-const currencies = [
-  { label: "USD ($)", value: "USD", symbol: "$" },
-  { label: "EUR (€)", value: "EUR", symbol: "€" },
-  { label: "XAF", value: "XAF", symbol: "FCFA" },
-];
+import { InvoiceFormData } from "@/types/invoice";
+import { ClientDetailsSection } from "./sections/ClientDetailsSection";
+import { ServiceDetailsSection } from "./sections/ServiceDetailsSection";
+import { PaymentDetailsSection } from "./sections/PaymentDetailsSection";
 
 export const InvoiceForm = () => {
   const { toast } = useToast();
@@ -97,102 +90,23 @@ export const InvoiceForm = () => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="clientName">Client Name *</Label>
-        <Input
-          id="clientName"
-          name="clientName"
-          value={invoiceData.clientName}
-          onChange={handleChange}
-          placeholder="Enter client name"
-        />
-      </div>
+      <ClientDetailsSection 
+        clientDetails={invoiceData} 
+        onChange={handleChange}
+      />
       
-      <div className="space-y-2">
-        <Label htmlFor="clientEmail">Client Email *</Label>
-        <Input
-          id="clientEmail"
-          name="clientEmail"
-          type="email"
-          value={invoiceData.clientEmail}
-          onChange={handleChange}
-          placeholder="Enter client email"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="clientPhone">Client Phone</Label>
-        <Input
-          id="clientPhone"
-          name="clientPhone"
-          value={invoiceData.clientPhone}
-          onChange={handleChange}
-          placeholder="Enter client phone"
-        />
-      </div>
+      <ServiceDetailsSection
+        services={invoiceData.services}
+        notes={invoiceData.notes}
+        onChange={handleChange}
+      />
       
-      <div className="space-y-2">
-        <Label htmlFor="clientAddress">Client Address</Label>
-        <Textarea
-          id="clientAddress"
-          name="clientAddress"
-          value={invoiceData.clientAddress}
-          onChange={handleChange}
-          placeholder="Enter client address"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="services">Services Description *</Label>
-        <Textarea
-          id="services"
-          name="services"
-          value={invoiceData.services}
-          onChange={handleChange}
-          placeholder="Describe the services provided"
-        />
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="amount">Amount *</Label>
-          <Input
-            id="amount"
-            name="amount"
-            type="number"
-            value={invoiceData.amount}
-            onChange={handleChange}
-            placeholder="Enter amount"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label>Currency</Label>
-          <Select value={invoiceData.currency} onValueChange={handleCurrencyChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              {currencies.map((currency) => (
-                <SelectItem key={currency.value} value={currency.value}>
-                  {currency.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="notes">Additional Notes</Label>
-        <Textarea
-          id="notes"
-          name="notes"
-          value={invoiceData.notes}
-          onChange={handleChange}
-          placeholder="Enter any additional notes"
-        />
-      </div>
+      <PaymentDetailsSection
+        amount={invoiceData.amount}
+        currency={invoiceData.currency}
+        onAmountChange={handleChange}
+        onCurrencyChange={handleCurrencyChange}
+      />
       
       <Button 
         className="w-full"
