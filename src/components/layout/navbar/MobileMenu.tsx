@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { MenuItem } from "@/types/navigation";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -18,6 +20,26 @@ export const MobileMenu = ({
   onSignOut,
   user,
 }: MobileMenuProps) => {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkUserType = async () => {
+      if (user) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', user.id)
+          .single();
+
+        if (!error && profile) {
+          setIsAdmin(profile.user_type === 'admin');
+        }
+      }
+    };
+
+    checkUserType();
+  }, [user]);
+
   if (!isOpen) return null;
 
   return (
@@ -48,11 +70,11 @@ export const MobileMenu = ({
         {user ? (
           <>
             <Link
-              to="/dashboard"
+              to={isAdmin ? "/admin" : "/dashboard"}
               className="text-gray-600 hover:text-brand-blue transition-colors"
               onClick={onClose}
             >
-              Dashboard
+              {isAdmin ? "Admin Dashboard" : "Dashboard"}
             </Link>
             <Link
               to="/invoice"
@@ -63,7 +85,10 @@ export const MobileMenu = ({
             </Link>
             <button
               className="text-left text-gray-600 hover:text-brand-blue transition-colors"
-              onClick={onSignOut}
+              onClick={() => {
+                if (onSignOut) onSignOut();
+                onClose();
+              }}
             >
               Sign Out
             </button>

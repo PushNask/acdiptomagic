@@ -7,6 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserMenuProps {
   user: any;
@@ -15,6 +17,26 @@ interface UserMenuProps {
 }
 
 export const UserMenu = ({ user, onSignOut, navigate }: UserMenuProps) => {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkUserType = async () => {
+      if (user) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', user.id)
+          .single();
+
+        if (!error && profile) {
+          setIsAdmin(profile.user_type === 'admin');
+        }
+      }
+    };
+
+    checkUserType();
+  }, [user]);
+
   if (!user) {
     return (
       <div className="flex items-center space-x-2">
@@ -47,8 +69,8 @@ export const UserMenu = ({ user, onSignOut, navigate }: UserMenuProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-          Dashboard
+        <DropdownMenuItem onClick={() => navigate(isAdmin ? "/admin" : "/dashboard")}>
+          {isAdmin ? "Admin Dashboard" : "Dashboard"}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("/invoice")}>
           Invoices
