@@ -30,10 +30,21 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
   };
 
   const handleDownload = async () => {
-    if (!purchaseCode || purchaseCode.length !== 6) {
+    if (!purchaseCode || purchaseCode.length !== 8) {
       toast({
         title: "Invalid Code",
-        description: "Please enter a valid 6-digit purchase code.",
+        description: "Please enter a valid 8-character purchase code.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate code format (uppercase letters and numbers only)
+    const codeFormat = /^[A-Z0-9]{8}$/;
+    if (!codeFormat.test(purchaseCode)) {
+      toast({
+        title: "Invalid Code Format",
+        description: "Purchase code must contain only uppercase letters and numbers.",
         variant: "destructive",
       });
       return;
@@ -107,7 +118,6 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
 
       if (purchaseError) {
         console.error('Error creating purchase record:', purchaseError);
-        // Even if purchase record creation fails, the code is already used
         toast({
           title: "Warning",
           description: "Your download will proceed, but there was an issue recording the purchase.",
@@ -162,7 +172,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
             3. Price: ${selectedResource?.price?.toFixed(2)}
           </p>
           <p className="text-sm">
-            4. You'll receive a purchase code within 24 hours after payment confirmation.
+            4. You'll receive an 8-character purchase code within 24 hours after payment confirmation.
           </p>
           
           {!showCodeInput ? (
@@ -178,10 +188,11 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
             <div className="space-y-2">
               <Input
                 type="text"
-                placeholder="Enter your 6-digit purchase code"
+                placeholder="Enter your 8-character purchase code"
                 value={purchaseCode}
-                onChange={(e) => setPurchaseCode(e.target.value.slice(0, 6))}
-                maxLength={6}
+                onChange={(e) => setPurchaseCode(e.target.value.slice(0, 8).toUpperCase())}
+                maxLength={8}
+                className="uppercase"
               />
               <Button 
                 className="w-full"

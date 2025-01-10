@@ -331,6 +331,12 @@ export type Database = {
         }
         Returns: string
       }
+      generate_random_code: {
+        Args: {
+          length: number
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
