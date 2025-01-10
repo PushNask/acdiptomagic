@@ -41,7 +41,6 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
 
     setIsVerifying(true);
     try {
-      // First, check if the code exists and hasn't been used
       const { data: codeData, error: codeError } = await supabase
         .from('purchase_codes')
         .select('*')
@@ -58,7 +57,6 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         return;
       }
 
-      // Mark the code as used
       const { error: updateError } = await supabase
         .from('purchase_codes')
         .update({

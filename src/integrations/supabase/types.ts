@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      purchase_codes: {
+        Row: {
+          id: string
+          code: string
+          is_used: boolean
+          used_at: string | null
+          used_by_user_id: string | null
+          used_for_resource_id: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          code: string
+          is_used?: boolean
+          used_at?: string | null
+          used_by_user_id?: string | null
+          used_for_resource_id?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          code?: string
+          is_used?: boolean
+          used_at?: string | null
+          used_by_user_id?: string | null
+          used_for_resource_id?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_codes_used_by_user_id_fkey"
+            columns: ["used_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_codes_used_for_resource_id_fkey"
+            columns: ["used_for_resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -305,7 +350,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -338,10 +383,10 @@ export type TablesInsert<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
+      Insert: infer I
+    }
+    ? I
+    : never
     : never
 
 export type TablesUpdate<
@@ -359,10 +404,10 @@ export type TablesUpdate<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
+      Update: infer U
+    }
+    ? U
+    : never
     : never
 
 export type Enums<
