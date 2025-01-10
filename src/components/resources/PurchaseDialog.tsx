@@ -57,7 +57,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         return;
       }
 
-      // Then verify the purchase code
+      // Then verify the purchase code and lock it for this transaction
       const { data: codeData, error: codeError } = await supabase
         .from('purchase_codes')
         .select('*')
@@ -65,11 +65,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         .eq('is_used', false)
         .single();
 
-      if (codeError) {
-        throw codeError;
-      }
-
-      if (!codeData) {
+      if (codeError || !codeData) {
         toast({
           title: "Invalid Code",
           description: "This code is invalid or has already been used.",
@@ -78,7 +74,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         return;
       }
 
-      // Mark the code as used
+      // Immediately mark the code as used to prevent concurrent usage
       const { error: updateError } = await supabase
         .from('purchase_codes')
         .update({
@@ -87,10 +83,17 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
           used_by_user_id: session.user.id,
           used_for_resource_id: selectedResource.id
         })
-        .eq('id', codeData.id);
+        .eq('id', codeData.id)
+        .eq('is_used', false); // Additional check to prevent race conditions
 
       if (updateError) {
-        throw updateError;
+        console.error('Error updating purchase code:', updateError);
+        toast({
+          title: "Error",
+          description: "Failed to process the purchase code. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
 
       // Create a user purchase record
@@ -104,6 +107,12 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
 
       if (purchaseError) {
         console.error('Error creating purchase record:', purchaseError);
+        // Even if purchase record creation fails, the code is already used
+        toast({
+          title: "Warning",
+          description: "Your download will proceed, but there was an issue recording the purchase.",
+          variant: "destructive",
+        });
       }
 
       // Trigger the download
@@ -120,6 +129,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
       });
 
       onOpenChange(false);
+      setPurchaseCode(""); // Reset the input
     } catch (error) {
       console.error('Download error:', error);
       toast({
