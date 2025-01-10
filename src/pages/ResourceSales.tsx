@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from 'react';
 import ResourceCard from '@/components/resources/ResourceCard';
-import PurchaseDialog from '@/components/resources/PurchaseDialog';
+import PurchaseDialog from '@/components/resources/purchase/PurchaseDialog';
 
 const ResourceSales = () => {
   const { category } = useParams();
