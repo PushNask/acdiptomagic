@@ -47,7 +47,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         .select('*')
         .eq('code', purchaseCode)
         .eq('is_used', false)
-        .maybeSingle();
+        .single();
 
       if (codeError) {
         throw codeError;
@@ -62,13 +62,29 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         return;
       }
 
-      // Mark the code as used before starting the download
+      // Get current user session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to download resources.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Mark the code as used
       const { error: updateError } = await supabase
         .from('purchase_codes')
         .update({
           is_used: true,
           used_at: new Date().toISOString(),
-          used_by_user_id: (await supabase.auth.getUser()).data.user?.id,
+          used_by_user_id: session.user.id,
           used_for_resource_id: selectedResource.id
         })
         .eq('id', codeData.id);
@@ -81,7 +97,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
       const { error: purchaseError } = await supabase
         .from('user_purchases')
         .insert({
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: session.user.id,
           resource_id: selectedResource.id,
           expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year access
         });
