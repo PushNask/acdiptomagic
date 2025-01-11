@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
 
 import Navbar from "@/components/layout/Navbar";
@@ -39,75 +39,85 @@ const queryClient = new QueryClient({
   },
 });
 
+// Wrapper component to conditionally render navbar
+const AppContent = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  const showNavbar = !isAdminRoute && !isDashboardRoute;
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {showNavbar && <AnnouncementBanner className="z-50" />}
+      {showNavbar && <Navbar className="z-40" />}
+      <main className={showNavbar ? "flex-1 pt-[136px]" : "flex-1"}> 
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Index />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/services/startup-booster" element={<StartupBooster />} />
+          <Route path="/services/enterprise-growth" element={<EnterpriseGrowth />} />
+          <Route path="/services/sustainability-focus" element={<SustainabilityFocus />} />
+          <Route path="/services/business-incorporation" element={<BusinessIncorporation />} />
+          <Route path="/services/training-advisory" element={<TrainingAdvisory />} />
+          <Route path="/resources" element={<Resources />} />
+          <Route path="/resources/category/:category" element={<ResourceSales />} />
+
+          {/* Auth routes - redirect if already logged in */}
+          <Route 
+            path="/login" 
+            element={
+              <ProtectedRoute requiresAuth={false}>
+                <Login />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/signup" 
+            element={
+              <ProtectedRoute requiresAuth={false}>
+                <Signup />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Protected user routes */}
+          <Route 
+            path="/dashboard/*" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Protected admin routes */}
+          <Route 
+            path="/admin/*" 
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Catch all route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      {showNavbar && <Footer />}
+      <ChatBot />
+    </div>
+  );
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <TooltipProvider>
-          <div className="min-h-screen flex flex-col">
-            <AnnouncementBanner className="z-50" />
-            <Navbar className="z-40" />
-            <main className="flex-1 pt-[136px]"> {/* Adjusted to account for announcement bar */}
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/services/startup-booster" element={<StartupBooster />} />
-                <Route path="/services/enterprise-growth" element={<EnterpriseGrowth />} />
-                <Route path="/services/sustainability-focus" element={<SustainabilityFocus />} />
-                <Route path="/services/business-incorporation" element={<BusinessIncorporation />} />
-                <Route path="/services/training-advisory" element={<TrainingAdvisory />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/resources/category/:category" element={<ResourceSales />} />
-                <Route path="/contact" element={<Contact />} />
-
-                {/* Auth routes - redirect if already logged in */}
-                <Route 
-                  path="/login" 
-                  element={
-                    <ProtectedRoute requiresAuth={false}>
-                      <Login />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/signup" 
-                  element={
-                    <ProtectedRoute requiresAuth={false}>
-                      <Signup />
-                    </ProtectedRoute>
-                  } 
-                />
-
-                {/* Protected user routes */}
-                <Route 
-                  path="/dashboard/*" 
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-
-                {/* Protected admin routes */}
-                <Route 
-                  path="/admin/*" 
-                  element={
-                    <ProtectedRoute adminOnly>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-
-                {/* Catch all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-            <ChatBot />
-          </div>
+          <AppContent />
           <Toaster />
           <Sonner />
         </TooltipProvider>
