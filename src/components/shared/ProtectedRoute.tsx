@@ -26,6 +26,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
+          if (sessionError.message.includes('refresh_token_not_found')) {
+            await supabase.auth.signOut();
+            toast.error("Your session has expired. Please sign in again.");
+            setLoading(false);
+            return;
+          }
           console.error('Session error:', sessionError);
           toast.error("Authentication error. Please try logging in again.");
           setLoading(false);
