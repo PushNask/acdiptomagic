@@ -25,13 +25,13 @@ export const MobileMenu = ({
   useEffect(() => {
     const checkUserType = async () => {
       if (user) {
-        const { data: profile, error } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('user_type')
           .eq('id', user.id)
           .single();
 
-        if (!error && profile) {
+        if (profile) {
           setIsAdmin(profile.user_type === 'admin');
         }
       }
@@ -69,12 +69,21 @@ export const MobileMenu = ({
         </div>
         {user ? (
           <>
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="text-gray-600 hover:text-brand-blue transition-colors"
+                onClick={onClose}
+              >
+                Admin Dashboard
+              </Link>
+            )}
             <Link
-              to={isAdmin ? "/admin" : "/dashboard"}
+              to="/dashboard"
               className="text-gray-600 hover:text-brand-blue transition-colors"
               onClick={onClose}
             >
-              {isAdmin ? "Admin Dashboard" : "Dashboard"}
+              Dashboard
             </Link>
             <Link
               to="/invoice"
