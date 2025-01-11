@@ -5,11 +5,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import ResourceList from "./resources/ResourceList";
 import AddResourceDialog from "./resources/AddResourceDialog";
+import EditResourceDialog from "./resources/EditResourceDialog";
 
 const ResourceManager = () => {
   const { toast } = useToast();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<any>(null);
 
   const { data: resources, isLoading, refetch } = useQuery({
     queryKey: ["adminResources"],
@@ -32,14 +35,13 @@ const ResourceManager = () => {
     },
   });
 
-  const handleSubmit = async (formData: any, coverImage: File | null, pdfFile: File | null) => {
+  const handleCreate = async (formData: any, coverImage: File | null, pdfFile: File | null) => {
     setIsSubmitting(true);
 
     try {
       let coverImageUrl = "";
       let fileUrl = "";
       
-      // Upload PDF file
       if (pdfFile) {
         const fileExt = "pdf";
         const fileName = `${Math.random()}.${fileExt}`;
@@ -58,7 +60,6 @@ const ResourceManager = () => {
         fileUrl = publicUrl;
       }
 
-      // Upload cover image
       if (coverImage) {
         const fileExt = coverImage.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
@@ -95,7 +96,7 @@ const ResourceManager = () => {
         description: "Resource created successfully",
       });
 
-      setIsDialogOpen(false);
+      setIsAddDialogOpen(false);
       refetch();
     } catch (error) {
       console.error("Error creating resource:", error);
@@ -109,19 +110,111 @@ const ResourceManager = () => {
     }
   };
 
+  const handleEdit = async (formData: any, coverImage: File | null, pdfFile: File | null) => {
+    if (!selectedResource) return;
+    setIsSubmitting(true);
+
+    try {
+      const updates: any = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        price: parseFloat(formData.price),
+      };
+
+      if (pdfFile) {
+        const fileExt = "pdf";
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('digital-products')
+          .upload(filePath, pdfFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('digital-products')
+          .getPublicUrl(filePath);
+
+        updates.file_url = publicUrl;
+      }
+
+      if (coverImage) {
+        const fileExt = coverImage.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, coverImage);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        updates.cover_image = publicUrl;
+      }
+
+      const { error } = await supabase
+        .from("resources")
+        .update(updates)
+        .eq("id", selectedResource.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Resource updated successfully",
+      });
+
+      setIsEditDialogOpen(false);
+      refetch();
+    } catch (error) {
+      console.error("Error updating resource:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update resource. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditClick = (resource: any) => {
+    setSelectedResource(resource);
+    setIsEditDialogOpen(true);
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Resources</CardTitle>
         <AddResourceDialog
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          onSubmit={handleSubmit}
+          isOpen={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          onSubmit={handleCreate}
           isSubmitting={isSubmitting}
         />
       </CardHeader>
       <CardContent>
-        <ResourceList resources={resources} isLoading={isLoading} />
+        <ResourceList 
+          resources={resources} 
+          isLoading={isLoading} 
+          onEditClick={handleEditClick}
+        />
+        {selectedResource && (
+          <EditResourceDialog
+            resource={selectedResource}
+            isOpen={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            onSubmit={handleEdit}
+            isSubmitting={isSubmitting}
+          />
+        )}
       </CardContent>
     </Card>
   );

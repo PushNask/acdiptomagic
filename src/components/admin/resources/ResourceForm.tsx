@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,8 @@ interface ResourceFormProps {
   onSubmit: (formData: any, coverImage: File | null, pdfFile: File | null) => Promise<void>;
   isSubmitting: boolean;
   onCancel: () => void;
+  initialData?: any;
+  mode?: 'create' | 'edit';
 }
 
 const RESOURCE_CATEGORIES = [
@@ -19,7 +21,7 @@ const RESOURCE_CATEGORIES = [
   { id: "career-guidance", label: "Career Guidance", value: "Career Guidance" },
 ];
 
-const ResourceForm = ({ onSubmit, isSubmitting, onCancel }: ResourceFormProps) => {
+const ResourceForm = ({ onSubmit, isSubmitting, onCancel, initialData, mode = 'create' }: ResourceFormProps) => {
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
@@ -28,6 +30,17 @@ const ResourceForm = ({ onSubmit, isSubmitting, onCancel }: ResourceFormProps) =
     category: "",
     price: "",
   });
+
+  useEffect(() => {
+    if (initialData && mode === 'edit') {
+      setFormData({
+        title: initialData.title || "",
+        description: initialData.description || "",
+        category: initialData.category || "",
+        price: initialData.price?.toString() || "",
+      });
+    }
+  }, [initialData, mode]);
 
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -116,7 +129,7 @@ const ResourceForm = ({ onSubmit, isSubmitting, onCancel }: ResourceFormProps) =
             accept=".pdf"
             onChange={handlePdfFileChange}
             className="flex-1"
-            required
+            required={mode === 'create'}
           />
           {pdfFile && (
             <div className="flex items-center gap-2">
@@ -159,7 +172,7 @@ const ResourceForm = ({ onSubmit, isSubmitting, onCancel }: ResourceFormProps) =
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create Resource"}
+          {isSubmitting ? (mode === 'create' ? "Creating..." : "Updating...") : (mode === 'create' ? "Create Resource" : "Update Resource")}
         </Button>
       </div>
     </form>

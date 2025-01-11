@@ -7,13 +7,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import EditResourceDialog from "./EditResourceDialog";
 
 interface ResourceListProps {
   resources: any[];
   isLoading: boolean;
+  onEditClick: (resource: any) => void;
 }
 
-const ResourceList = ({ resources, isLoading }: ResourceListProps) => {
+const ResourceList = ({ resources, isLoading, onEditClick }: ResourceListProps) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -35,6 +37,7 @@ const ResourceList = ({ resources, isLoading }: ResourceListProps) => {
             <TableHead>Price</TableHead>
             <TableHead>Purchases</TableHead>
             <TableHead>Created</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -46,6 +49,15 @@ const ResourceList = ({ resources, isLoading }: ResourceListProps) => {
               <TableCell>{resource.user_purchases?.length || 0}</TableCell>
               <TableCell>
                 {new Date(resource.created_at).toLocaleDateString()}
+              </TableCell>
+              <TableCell>
+                <EditResourceDialog
+                  resource={resource}
+                  isOpen={false}
+                  onOpenChange={() => {}}
+                  onSubmit={async () => {}}
+                  isSubmitting={false}
+                />
               </TableCell>
             </TableRow>
           ))}
