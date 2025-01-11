@@ -31,7 +31,7 @@ const HeroSection = () => {
     <>
       <div className="relative min-h-[80vh] flex items-center bg-gradient-to-b from-gray-900 to-gray-800 text-white">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1649972904349-6e44c42644a7')] bg-cover bg-center opacity-10" />
-        <div className="container mx-auto px-4 py-24 relative z-10">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
