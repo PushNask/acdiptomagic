@@ -1,9 +1,9 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
-import Logo from "./navbar/Logo";
-import DesktopMenu from "./navbar/DesktopMenu";
-import MobileMenu from "./navbar/MobileMenu";
-import UserMenu from "./navbar/UserMenu";
+import { Logo } from "./navbar/Logo";
+import { DesktopMenu } from "./navbar/DesktopMenu";
+import { MobileMenu } from "./navbar/MobileMenu";
+import { UserMenu } from "./navbar/UserMenu";
 
 interface NavbarProps {
   className?: string;
