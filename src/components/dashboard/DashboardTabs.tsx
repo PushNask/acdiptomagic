@@ -52,7 +52,6 @@ const DashboardTabs = ({
                   <ServiceCard 
                     key={service.id} 
                     service={service}
-                    onRequest={onServiceRequest}
                   />
                 ))}
             </div>
