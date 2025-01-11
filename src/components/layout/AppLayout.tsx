@@ -15,7 +15,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     <div className="min-h-screen flex flex-col">
       {!hideNavigation && <AnnouncementBanner className="z-50" />}
       {!hideNavigation && <Navbar className="z-40" />}
-      <main className="flex-1"> 
+      <main className="flex-1 relative"> 
         {children}
       </main>
       {!hideNavigation && <Footer />}

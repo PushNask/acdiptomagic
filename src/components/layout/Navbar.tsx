@@ -7,6 +7,8 @@ import { MobileMenu } from "./navbar/MobileMenu";
 import { UserMenu } from "./navbar/UserMenu";
 import { MenuItem } from "@/types/navigation";
 import { supabase } from "@/integrations/supabase/client";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface NavbarProps {
   className?: string;
@@ -54,7 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
   return (
     <nav className={cn(
-      "w-full bg-background border-b sticky top-0 shadow-sm",
+      "w-full bg-white border-b sticky top-0 shadow-sm z-40",
       className
     )}
     aria-label="Main navigation"
@@ -74,16 +76,25 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
               onSignOut={handleSignOut}
               navigate={navigate}
             />
-            <MobileMenu 
-              isOpen={isOpen}
-              menuItems={menuItems}
-              servicesSubmenu={servicesSubmenu}
-              onClose={() => setIsOpen(false)}
-              onSignOut={handleSignOut}
-              user={user}
-            />
+            <Button
+              variant="ghost"
+              className="md:hidden"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
           </div>
         </div>
+        {isOpen && (
+          <MobileMenu 
+            isOpen={isOpen}
+            menuItems={menuItems}
+            servicesSubmenu={servicesSubmenu}
+            onClose={() => setIsOpen(false)}
+            onSignOut={handleSignOut}
+            user={user}
+          />
+        )}
       </div>
     </nav>
   );

@@ -44,7 +44,7 @@ export const DesktopMenu = ({ menuItems, servicesSubmenu }: DesktopMenuProps) =>
             {item.label}
           </Link>
           {item.label === "Services" && (
-            <div className="absolute left-0 mt-2 w-64 bg-white border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+            <div className="absolute left-0 mt-2 w-64 bg-white border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
               <div className="py-2">
                 {servicesSubmenu.map((subItem) => (
                   <Link
