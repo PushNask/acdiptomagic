@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
+import { AdminRoute } from "@/components/shared/AdminRoute";
 import { RouteConfig } from "@/types/navigation";
 import { publicRoutes, authRoutes, protectedRoutes, catchAllRoute } from "@/config/routes";
 
@@ -35,9 +36,11 @@ export const RouteRenderer: React.FC = () => {
           key={route.path}
           path={route.path}
           element={
-            <ProtectedRoute adminOnly={route.adminOnly}>
-              {route.element}
-            </ProtectedRoute>
+            route.adminOnly ? (
+              <AdminRoute>{route.element}</AdminRoute>
+            ) : (
+              <ProtectedRoute>{route.element}</ProtectedRoute>
+            )
           }
         />
       ))}
