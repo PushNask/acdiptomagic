@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Plus } from "lucide-react";
+import { AlertCircle, Plus, Upload } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -28,6 +28,7 @@ const ResourceManager = () => {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [coverImage, setCoverImage] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -57,11 +58,37 @@ const ResourceManager = () => {
     },
   });
 
+  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCoverImage(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      let coverImageUrl = "";
+      
+      if (coverImage) {
+        const fileExt = coverImage.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, coverImage);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        coverImageUrl = publicUrl;
+      }
+
       const { error } = await supabase.from("resources").insert([
         {
           title: formData.title,
@@ -69,6 +96,7 @@ const ResourceManager = () => {
           category: formData.category,
           price: parseFloat(formData.price),
           file_url: formData.file_url,
+          cover_image: coverImageUrl,
         },
       ]);
 
@@ -86,6 +114,7 @@ const ResourceManager = () => {
         price: "",
         file_url: "",
       });
+      setCoverImage(null);
       setIsDialogOpen(false);
       refetch();
     } catch (error) {
@@ -122,7 +151,7 @@ const ResourceManager = () => {
               Add Resource
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Resource</DialogTitle>
             </DialogHeader>
@@ -185,7 +214,27 @@ const ResourceManager = () => {
                   required
                 />
               </div>
-              <div className="flex justify-end gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="cover_image">Cover Image</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="cover_image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverImageChange}
+                    className="flex-1"
+                  />
+                  {coverImage && (
+                    <div className="flex items-center gap-2">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {coverImage.name}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -202,30 +251,32 @@ const ResourceManager = () => {
         </Dialog>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Purchases</TableHead>
-              <TableHead>Created</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {resources?.map((resource) => (
-              <TableRow key={resource.id}>
-                <TableCell className="font-medium">{resource.title}</TableCell>
-                <TableCell>{resource.category}</TableCell>
-                <TableCell>${resource.price.toFixed(2)}</TableCell>
-                <TableCell>{resource.user_purchases?.length || 0}</TableCell>
-                <TableCell>
-                  {new Date(resource.created_at).toLocaleDateString()}
-                </TableCell>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Purchases</TableHead>
+                <TableHead>Created</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {resources?.map((resource) => (
+                <TableRow key={resource.id}>
+                  <TableCell className="font-medium">{resource.title}</TableCell>
+                  <TableCell>{resource.category}</TableCell>
+                  <TableCell>${resource.price.toFixed(2)}</TableCell>
+                  <TableCell>{resource.user_purchases?.length || 0}</TableCell>
+                  <TableCell>
+                    {new Date(resource.created_at).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
