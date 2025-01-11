@@ -54,9 +54,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
   return (
     <nav className={cn(
-      "w-full bg-background border-b sticky top-0",
+      "w-full bg-background border-b sticky top-0 shadow-sm",
       className
-    )}>
+    )}
+    aria-label="Main navigation"
+    >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
