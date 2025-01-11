@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { MenuItem } from "@/types/navigation";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DesktopMenuProps {
   menuItems: MenuItem[];
@@ -8,8 +10,17 @@ interface DesktopMenuProps {
 }
 
 export const DesktopMenu = ({ menuItems, servicesSubmenu }: DesktopMenuProps) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  const { isAdmin } = useAdminStatus(user?.id);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const { isAdmin } = useAdminStatus(userId);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id);
+    };
+
+    getCurrentUser();
+  }, []);
 
   return (
     <div className="hidden md:flex items-center space-x-4">
@@ -38,7 +49,7 @@ export const DesktopMenu = ({ menuItems, servicesSubmenu }: DesktopMenuProps) =>
           )}
         </div>
       ))}
-      {user && isAdmin && (
+      {userId && isAdmin && (
         <Link
           to="/admin"
           className="text-gray-600 hover:text-brand-blue transition-colors"
