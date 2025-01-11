@@ -24,7 +24,7 @@ const UserManager = () => {
           user_purchases (
             id
           ),
-          service_requests (
+          service_requests!service_requests_client_id_fkey (
             id,
             status
           )
