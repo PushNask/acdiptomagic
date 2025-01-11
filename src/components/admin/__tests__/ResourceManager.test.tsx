@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ResourceManager from '../ResourceManager';
 
@@ -29,7 +29,8 @@ vi.mock('@/integrations/supabase/client', () => ({
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         order: vi.fn(() => Promise.resolve({ data: mockResources, error: null }))
-      }))
+      })),
+      insert: vi.fn(() => Promise.resolve({ error: null }))
     }))
   }
 }));
@@ -66,6 +67,52 @@ describe('ResourceManager', () => {
     await waitFor(() => {
       expect(screen.getByText('$99.99')).toBeInTheDocument();
       expect(screen.getByText('Business Guides')).toBeInTheDocument();
+    });
+  });
+
+  it('opens create resource dialog when add button is clicked', async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ResourceManager />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      const addButton = screen.getByText('Add Resource');
+      fireEvent.click(addButton);
+      expect(screen.getByText('Create New Resource')).toBeInTheDocument();
+    });
+  });
+
+  it('submits new resource form correctly', async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ResourceManager />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      const addButton = screen.getByText('Add Resource');
+      fireEvent.click(addButton);
+    });
+
+    const titleInput = screen.getByLabelText('Title');
+    const descriptionInput = screen.getByLabelText('Description');
+    const categoryInput = screen.getByLabelText('Category');
+    const priceInput = screen.getByLabelText('Price');
+    const fileUrlInput = screen.getByLabelText('File URL');
+
+    fireEvent.change(titleInput, { target: { value: 'New Resource' } });
+    fireEvent.change(descriptionInput, { target: { value: 'Description' } });
+    fireEvent.change(categoryInput, { target: { value: 'Test Category' } });
+    fireEvent.change(priceInput, { target: { value: '49.99' } });
+    fireEvent.change(fileUrlInput, { target: { value: 'https://example.com/file' } });
+
+    const submitButton = screen.getByText('Create Resource');
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Create New Resource')).not.toBeInTheDocument();
     });
   });
 });
