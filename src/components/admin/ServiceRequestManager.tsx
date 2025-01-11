@@ -11,9 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 const ServiceRequestManager = () => {
-  const { data: requests, isLoading } = useQuery({
+  const { data: requests, isLoading, error } = useQuery({
     queryKey: ["serviceRequests"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -30,11 +31,19 @@ const ServiceRequestManager = () => {
           ),
           assigned:profiles!service_requests_assigned_to_fkey (
             full_name
+          ),
+          payments (
+            amount,
+            status
           )
         `)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching service requests:", error);
+        toast.error("Failed to load service requests");
+        throw error;
+      }
       return data;
     },
   });
@@ -69,6 +78,17 @@ const ServiceRequestManager = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center gap-2 text-destructive">
+          <AlertCircle className="h-5 w-5" />
+          <span>Failed to load service requests. Please try again.</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -89,34 +109,40 @@ const ServiceRequestManager = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {requests?.map((request) => (
-              <TableRow key={request.id}>
-                <TableCell className="font-medium">
-                  {request.id.slice(0, 8)}
-                </TableCell>
-                <TableCell>
-                  {request.profiles?.full_name}
-                  <br />
-                  <span className="text-sm text-muted-foreground">
-                    {request.profiles?.email}
-                  </span>
-                </TableCell>
-                <TableCell>{request.service_types?.name}</TableCell>
-                <TableCell>
-                  <Badge className={getStatusColor(request.status)}>
-                    {request.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge className={getPriorityColor(request.priority)}>
-                    {request.priority}
-                  </Badge>
-                </TableCell>
-                <TableCell>{request.assigned?.full_name || "Unassigned"}</TableCell>
-                <TableCell>${request.cost?.toFixed(2)}</TableCell>
-                <TableCell>${request.paid_amount?.toFixed(2)}</TableCell>
-              </TableRow>
-            ))}
+            {requests?.map((request) => {
+              const totalPaid = request.payments?.reduce((sum, payment) => 
+                sum + (payment.status === 'completed' ? payment.amount : 0), 0
+              ) || 0;
+
+              return (
+                <TableRow key={request.id}>
+                  <TableCell className="font-medium">
+                    {request.id.slice(0, 8)}
+                  </TableCell>
+                  <TableCell>
+                    {request.profiles?.full_name}
+                    <br />
+                    <span className="text-sm text-muted-foreground">
+                      {request.profiles?.email}
+                    </span>
+                  </TableCell>
+                  <TableCell>{request.service_types?.name}</TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(request.status)}>
+                      {request.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getPriorityColor(request.priority)}>
+                      {request.priority}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{request.assigned?.full_name || "Unassigned"}</TableCell>
+                  <TableCell>${request.cost?.toFixed(2)}</TableCell>
+                  <TableCell>${totalPaid.toFixed(2)}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>
