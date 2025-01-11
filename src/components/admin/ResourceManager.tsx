@@ -32,12 +32,33 @@ const ResourceManager = () => {
     },
   });
 
-  const handleSubmit = async (formData: any, coverImage: File | null) => {
+  const handleSubmit = async (formData: any, coverImage: File | null, pdfFile: File | null) => {
     setIsSubmitting(true);
 
     try {
       let coverImageUrl = "";
+      let fileUrl = "";
       
+      // Upload PDF file
+      if (pdfFile) {
+        const fileExt = "pdf";
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('digital-products')
+          .upload(filePath, pdfFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('digital-products')
+          .getPublicUrl(filePath);
+
+        fileUrl = publicUrl;
+      }
+
+      // Upload cover image
       if (coverImage) {
         const fileExt = coverImage.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
@@ -62,7 +83,7 @@ const ResourceManager = () => {
           description: formData.description,
           category: formData.category,
           price: parseFloat(formData.price),
-          file_url: formData.file_url,
+          file_url: fileUrl,
           cover_image: coverImageUrl,
         },
       ]);

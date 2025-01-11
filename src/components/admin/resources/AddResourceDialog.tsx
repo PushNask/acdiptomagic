@@ -12,7 +12,7 @@ import ResourceForm from "./ResourceForm";
 interface AddResourceDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (formData: any, coverImage: File | null) => Promise<void>;
+  onSubmit: (formData: any, coverImage: File | null, pdfFile: File | null) => Promise<void>;
   isSubmitting: boolean;
 }
 
