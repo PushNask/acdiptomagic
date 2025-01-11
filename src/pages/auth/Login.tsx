@@ -38,11 +38,8 @@ const Login = () => {
             return;
           }
 
-          if (profile?.user_type === 'admin') {
-            navigate("/admin");
-          } else {
-            navigate("/dashboard");
-          }
+          toast.success("Welcome back!");
+          navigate(profile?.user_type === 'admin' ? "/admin" : "/dashboard");
         }
       } catch (error) {
         console.error('Session check error:', error);
@@ -94,14 +91,11 @@ const Login = () => {
           description: "Welcome back!",
         });
 
-        if (profile?.user_type === 'admin') {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
-        }
+        navigate(profile?.user_type === 'admin' ? "/admin" : "/dashboard");
       }
     } catch (error: any) {
       setError(error.message);
+      toast.error("An unexpected error occurred");
     } finally {
       setLoading(false);
     }

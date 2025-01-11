@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from "sonner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,19 +20,28 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          toast.error("Authentication error. Please try logging in again.");
+          setLoading(false);
+          return;
+        }
+
         const currentUser = session?.user;
         setUser(currentUser ?? null);
 
         if (currentUser) {
-          const { data: profile, error } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('user_type')
             .eq('id', currentUser.id)
             .single();
           
-          if (error) {
-            console.error('Error fetching profile:', error);
+          if (profileError) {
+            console.error('Profile fetch error:', profileError);
+            toast.error("Error fetching user profile");
             setIsAdmin(false);
           } else {
             setIsAdmin(profile?.user_type === 'admin');
@@ -39,6 +49,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         }
       } catch (error) {
         console.error('Auth check error:', error);
+        toast.error("Authentication check failed");
       } finally {
         setLoading(false);
       }
@@ -46,20 +57,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       const currentUser = session?.user;
       setUser(currentUser ?? null);
 
       if (currentUser) {
         try {
-          const { data: profile, error } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('user_type')
             .eq('id', currentUser.id)
             .single();
           
-          if (error) {
-            console.error('Error fetching profile:', error);
+          if (profileError) {
+            console.error('Profile fetch error:', profileError);
             setIsAdmin(false);
           } else {
             setIsAdmin(profile?.user_type === 'admin');
@@ -68,6 +79,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           console.error('Profile fetch error:', error);
           setIsAdmin(false);
         }
+      } else {
+        setIsAdmin(false);
       }
 
       setLoading(false);
@@ -77,14 +90,23 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
+          <p className="text-gray-600">Verifying access...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
+    toast.error("Please log in to access this page");
     return <Navigate to="/login" replace />;
   }
 
   if (adminOnly && !isAdmin) {
+    toast.error("You don't have permission to access this page");
     return <Navigate to="/dashboard" replace />;
   }
 
