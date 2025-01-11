@@ -4,9 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { 
   Users, BookOpen, FileText, ShoppingCart, 
-  BarChart3, AlertCircle
+  BarChart3, AlertCircle, ArrowLeft
 } from "lucide-react";
 import ServiceRequestManager from "@/components/admin/ServiceRequestManager";
 import ResourceManager from "@/components/admin/ResourceManager";
@@ -100,68 +101,79 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Website
+          </Button>
+        </div>
 
-      <Tabs defaultValue="overview" className="space-y-8">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="services">Services</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="services">Services</TabsTrigger>
+            <TabsTrigger value="resources">Resources</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard 
-              title="Total Users" 
-              value={stats?.totalUsers} 
-              icon={Users} 
-            />
-            <StatCard 
-              title="Total Resources" 
-              value={stats?.totalResources} 
-              icon={BookOpen} 
-            />
-            <StatCard 
-              title="Total Purchases" 
-              value={stats?.totalPurchases} 
-              icon={ShoppingCart} 
-            />
-            <StatCard 
-              title="Total Revenue" 
-              value={`$${stats?.totalRevenue.toFixed(2)}`} 
-              icon={BarChart3} 
-            />
-          </div>
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StatCard 
+                title="Total Users" 
+                value={stats?.totalUsers} 
+                icon={Users} 
+              />
+              <StatCard 
+                title="Total Resources" 
+                value={stats?.totalResources} 
+                icon={BookOpen} 
+              />
+              <StatCard 
+                title="Total Purchases" 
+                value={stats?.totalPurchases} 
+                icon={ShoppingCart} 
+              />
+              <StatCard 
+                title="Total Revenue" 
+                value={`$${stats?.totalRevenue.toFixed(2)}`} 
+                icon={BarChart3} 
+              />
+            </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* We'll implement the activity log in the next iteration */}
-                <p className="text-muted-foreground text-sm">
-                  Activity log coming soon...
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-sm">
+                    Activity log coming soon...
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="services">
-          <ServiceRequestManager />
-        </TabsContent>
+          <TabsContent value="services">
+            <ServiceRequestManager />
+          </TabsContent>
 
-        <TabsContent value="resources">
-          <ResourceManager />
-        </TabsContent>
+          <TabsContent value="resources">
+            <ResourceManager />
+          </TabsContent>
 
-        <TabsContent value="users">
-          <UserManager />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="users">
+            <UserManager />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

@@ -16,9 +16,7 @@ const menuItems: MenuItem[] = [
   { label: "Home", path: "/" },
   { label: "About", path: "/about" },
   { label: "Services", path: "/services" },
-  { label: "Blog", path: "/blog" },
-  { label: "Resources", path: "/resources" },
-  { label: "Contact", path: "/contact" }
+  { label: "Resources", path: "/resources" }
 ];
 
 const servicesSubmenu: MenuItem[] = [
