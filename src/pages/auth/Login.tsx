@@ -18,9 +18,15 @@ const Login = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        try {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          return;
+        }
+
+        if (session?.user?.id) {
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('user_type')
@@ -28,7 +34,7 @@ const Login = () => {
             .single();
 
           if (profileError) {
-            console.error('Error fetching profile:', profileError);
+            console.error('Profile fetch error:', profileError);
             return;
           }
 
@@ -37,9 +43,9 @@ const Login = () => {
           } else {
             navigate("/dashboard");
           }
-        } catch (error) {
-          console.error('Session check error:', error);
         }
+      } catch (error) {
+        console.error('Session check error:', error);
       }
     };
 
@@ -71,7 +77,7 @@ const Login = () => {
         return;
       }
 
-      if (session) {
+      if (session?.user?.id) {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('user_type')
