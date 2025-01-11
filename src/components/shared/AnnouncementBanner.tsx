@@ -1,29 +1,17 @@
-import { useState } from 'react';
-import { X, Phone } from 'lucide-react';
+import React from 'react';
+import { cn } from "@/lib/utils";
 
-const AnnouncementBanner = () => {
-  const [isVisible, setIsVisible] = useState(true);
+interface AnnouncementBannerProps {
+  className?: string;
+}
 
-  if (!isVisible) return null;
-
+const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({ className }) => {
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-brand-blue text-white px-4 py-2">
-      <div className="flex items-center justify-center gap-2 text-sm md:text-base max-w-screen-xl mx-auto">
-        <span className="font-medium">On Sale:</span>
-        <span className="hidden md:inline">"The Ultimate Guide to Importing Goods from China Without Traveling: A Step-by-Step Manual for Success"</span>
-        <span className="md:hidden">"Ultimate China Import Guide"</span>
-        <span className="hidden md:flex items-center gap-1">
-          <Phone className="h-4 w-4" />
-          Order Now: +237 - 671 154 588
-        </span>
-      </div>
-      <button
-        onClick={() => setIsVisible(false)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-brand-blue/80 rounded-full transition-colors"
-        aria-label="Close announcement"
-      >
-        <X className="h-4 w-4" />
-      </button>
+    <div className={cn(
+      "bg-primary text-primary-foreground py-2 px-4 text-center text-sm font-medium",
+      className
+    )}>
+      🎉 Welcome to AcDiToPush - Your Business Growth Partner
     </div>
   );
 };
