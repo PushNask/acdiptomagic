@@ -28,16 +28,52 @@ const ServiceRequestDialog = ({
     budget: "",
     additionalNotes: ""
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const totalSteps = 3;
   const progress = (currentStep / totalSteps) * 100;
 
+  const validateStep = () => {
+    const newErrors: Record<string, string> = {};
+
+    switch (currentStep) {
+      case 1:
+        if (!formData.startDate) {
+          newErrors.startDate = "Start date is required";
+        }
+        break;
+      case 2:
+        if (!formData.description || formData.description.length < 10) {
+          newErrors.description = "Please provide a detailed description (min. 10 characters)";
+        }
+        break;
+      case 3:
+        if (!formData.budget) {
+          newErrors.budget = "Please select a budget range";
+        }
+        break;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(prev => prev + 1);
+    if (validateStep()) {
+      if (currentStep < totalSteps) {
+        setCurrentStep(prev => prev + 1);
+        toast({
+          title: "Progress Saved",
+          description: "Your information has been saved. Let's continue with the next step.",
+          duration: 2000,
+        });
+      }
+    } else {
       toast({
-        title: "Progress Saved",
-        description: "Your information has been saved. Let's continue with the next step.",
+        title: "Validation Error",
+        description: "Please fill in all required fields correctly.",
+        variant: "destructive",
+        duration: 3000,
       });
     }
   };
@@ -49,12 +85,15 @@ const ServiceRequestDialog = ({
   };
 
   const handleSubmit = () => {
-    onRequestSubmit();
-    toast({
-      title: "Request Submitted Successfully!",
-      description: "We'll review your request and get back to you within 24 hours.",
-      duration: 5000,
-    });
+    if (validateStep()) {
+      onRequestSubmit();
+      toast({
+        title: "Request Submitted Successfully!",
+        description: "We'll review your request and get back to you within 24 hours.",
+        duration: 5000,
+      });
+      setShowServiceRequest(false);
+    }
   };
 
   const renderStep = () => {
@@ -134,15 +173,15 @@ const ServiceRequestDialog = ({
 
   return (
     <Dialog open={showServiceRequest} onOpenChange={setShowServiceRequest}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] p-0">
+        <DialogHeader className="p-6 pb-0">
           <DialogTitle>Request Service: {selectedService?.title}</DialogTitle>
           <DialogDescription>
             Complete the following steps to submit your service request
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4">
+        <div className="p-6">
           <div className="mb-6">
             <Progress value={progress} className="h-2" />
             <div className="flex justify-between mt-2 text-sm text-muted-foreground">
@@ -151,13 +190,24 @@ const ServiceRequestDialog = ({
             </div>
           </div>
 
-          {renderStep()}
+          <div className="space-y-6">
+            {renderStep()}
+
+            {Object.keys(errors).length > 0 && (
+              <div className="text-sm text-destructive mt-2">
+                {Object.values(errors).map((error, index) => (
+                  <p key={index}>{error}</p>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="pt-6 flex justify-between space-x-2">
             <Button
               variant="outline"
               onClick={handleBack}
               disabled={currentStep === 1}
+              className="min-w-[100px]"
             >
               Back
             </Button>
@@ -165,16 +215,23 @@ const ServiceRequestDialog = ({
               <Button
                 variant="outline"
                 onClick={() => setShowServiceRequest(false)}
+                className="min-w-[100px]"
               >
                 Cancel
               </Button>
               {currentStep < totalSteps ? (
-                <Button onClick={handleNext}>
+                <Button 
+                  onClick={handleNext}
+                  className="min-w-[100px]"
+                >
                   Next <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
-                <Button onClick={handleSubmit}>
-                  Submit Request <Check className="ml-2 h-4 w-4" />
+                <Button 
+                  onClick={handleSubmit}
+                  className="min-w-[100px]"
+                >
+                  Submit <Check className="ml-2 h-4 w-4" />
                 </Button>
               )}
             </div>
