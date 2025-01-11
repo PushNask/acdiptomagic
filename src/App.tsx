@@ -1,22 +1,35 @@
-import { BrowserRouter } from "react-router-dom";
+import React from 'react';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { BrowserRouter } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { RouteRenderer } from "@/components/routing/RouteRenderer";
-import { Toaster } from "@/components/ui/sonner";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
 
-function App() {
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthProvider>
-          <RouteRenderer />
+        <TooltipProvider>
+          <AppLayout>
+            <RouteRenderer />
+          </AppLayout>
           <Toaster />
-        </AuthProvider>
+          <Sonner />
+        </TooltipProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
-}
+};
 
 export default App;
