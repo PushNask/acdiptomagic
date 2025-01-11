@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Mail, Lock, LogIn } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,25 +20,25 @@ const Login = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        // Check if user is admin
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', session.user.id)
-          .single();
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('user_type')
+            .eq('id', session.user.id)
+            .single();
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-          return;
-        }
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            return;
+          }
 
-        // Log the profile data for debugging
-        console.log('Profile data:', profile);
-
-        if (profile?.user_type === 'admin') {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
+          if (profile?.user_type === 'admin') {
+            navigate("/admin");
+          } else {
+            navigate("/dashboard");
+          }
+        } catch (error) {
+          console.error('Session check error:', error);
         }
       }
     };
@@ -65,16 +65,13 @@ const Login = () => {
         } else {
           setError(signInError.message);
         }
-        toast({
-          variant: "destructive",
-          title: "Login Failed",
+        toast.error("Login Failed", {
           description: "Please check your credentials and try again.",
         });
         return;
       }
 
       if (session) {
-        // Check if user is admin
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('user_type')
@@ -87,15 +84,10 @@ const Login = () => {
           return;
         }
 
-        // Log the profile data for debugging
-        console.log('Profile data after login:', profile);
-
-        toast({
-          title: "Login Successful",
+        toast.success("Login Successful", {
           description: "Welcome back!",
         });
 
-        // Redirect based on user type
         if (profile?.user_type === 'admin') {
           navigate("/admin");
         } else {
