@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -8,6 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Mail, Lock, LogIn } from "lucide-react";
 import { toast } from "sonner";
+import { AuthError } from "@supabase/supabase-js";
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,90 +19,70 @@ const Login = () => {
   const [error, setError] = useState<string>("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          return;
-        }
-
-        if (session?.user?.id) {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('user_type')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profileError) {
-            console.error('Profile fetch error:', profileError);
-            return;
-          }
-
-          toast.success("Welcome back!");
-          navigate(profile?.user_type === 'admin' ? "/admin" : "/dashboard");
-        }
-      } catch (error) {
-        console.error('Session check error:', error);
-      }
-    };
-
-    checkSession();
-  }, [navigate]);
+  
+  // Rate limiting
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
+    // Check rate limiting
+    if (lockoutUntil && Date.now() < lockoutUntil) {
+      const minutesLeft = Math.ceil((lockoutUntil - Date.now()) / (60 * 1000));
+      setError(`Too many login attempts. Please try again in ${minutesLeft} minutes.`);
+      return;
+    }
+
+    if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+      setLockoutUntil(Date.now() + LOCKOUT_DURATION);
+      setLoginAttempts(0);
+      setError("Too many login attempts. Please try again in 15 minutes.");
+      return;
+    }
+
     try {
-      const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
+      setLoading(true);
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        if (signInError.message === "Invalid login credentials") {
-          setError("Invalid email or password. Please check your credentials and try again.");
-        } else if (signInError.message.includes("Email not confirmed")) {
-          setError("Please verify your email address before signing in.");
-        } else {
-          setError(signInError.message);
-        }
-        toast.error("Login Failed", {
-          description: "Please check your credentials and try again.",
-        });
+        handleAuthError(signInError);
+        setLoginAttempts(prev => prev + 1);
         return;
       }
 
-      if (session?.user?.id) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-          setError("Error fetching user profile");
-          return;
-        }
-
-        toast.success("Login Successful", {
-          description: "Welcome back!",
-        });
-
-        navigate(profile?.user_type === 'admin' ? "/admin" : "/dashboard");
-      }
-    } catch (error: any) {
-      setError(error.message);
-      toast.error("An unexpected error occurred");
+      // Reset attempts on successful login
+      setLoginAttempts(0);
+      setLockoutUntil(null);
+      toast.success("Login successful");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAuthError = (error: AuthError) => {
+    switch (error.message) {
+      case "Invalid login credentials":
+        setError("Invalid email or password. Please check your credentials.");
+        break;
+      case "Email not confirmed":
+        setError("Please verify your email address before signing in.");
+        break;
+      case "Too many requests":
+        setError("Too many login attempts. Please try again later.");
+        break;
+      default:
+        setError(error.message);
+    }
+    toast.error("Login failed");
   };
 
   return (
@@ -126,6 +110,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -141,10 +126,15 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading || (lockoutUntil !== null && Date.now() < lockoutUntil)}
+            >
               {loading ? (
                 "Signing in..."
               ) : (

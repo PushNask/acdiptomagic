@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
 
 interface ProtectedRouteProps {
@@ -15,84 +14,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   adminOnly = false,
   requiresAuth = true
 }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { user, isAdmin, isLoading } = useAuth();
   const location = useLocation();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          toast.error("Authentication error. Please try logging in again.");
-          setLoading(false);
-          return;
-        }
-
-        const currentUser = session?.user;
-        setUser(currentUser ?? null);
-
-        if (currentUser) {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('user_type')
-            .eq('id', currentUser.id)
-            .single();
-          
-          if (profileError) {
-            console.error('Profile fetch error:', profileError);
-            toast.error("Error fetching user profile");
-            setIsAdmin(false);
-          } else {
-            setIsAdmin(profile?.user_type === 'admin');
-          }
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-        toast.error("Authentication check failed");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      const currentUser = session?.user;
-      setUser(currentUser ?? null);
-
-      if (currentUser) {
-        try {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('user_type')
-            .eq('id', currentUser.id)
-            .single();
-          
-          if (profileError) {
-            console.error('Profile fetch error:', profileError);
-            setIsAdmin(false);
-          } else {
-            setIsAdmin(profile?.user_type === 'admin');
-          }
-        } catch (error) {
-          console.error('Profile fetch error:', error);
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
-      }
-
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -106,7 +31,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Handle auth routes (login/signup)
   if (!requiresAuth) {
     if (user) {
-      // If user is already logged in, redirect to appropriate dashboard
       return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
     }
     return <>{children}</>;
@@ -115,7 +39,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Handle protected routes
   if (!user) {
     toast.error("Please log in to access this page");
-    // Save the attempted URL to redirect back after login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
