@@ -7,8 +7,8 @@ const AnnouncementBanner = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="bg-brand-blue text-white px-4 py-2 flex items-center justify-center relative">
-      <div className="flex items-center gap-2 text-sm md:text-base max-w-screen-xl mx-auto">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-brand-blue text-white px-4 py-2">
+      <div className="flex items-center justify-center gap-2 text-sm md:text-base max-w-screen-xl mx-auto">
         <span className="font-medium">On Sale:</span>
         <span className="hidden md:inline">"The Ultimate Guide to Importing Goods from China Without Traveling: A Step-by-Step Manual for Success"</span>
         <span className="md:hidden">"Ultimate China Import Guide"</span>

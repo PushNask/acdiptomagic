@@ -46,7 +46,7 @@ const App = () => {
           <div className="min-h-screen flex flex-col">
             <AnnouncementBanner />
             <Navbar />
-            <main className="flex-1 pt-16">
+            <main className="flex-1 pt-[96px]">
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
