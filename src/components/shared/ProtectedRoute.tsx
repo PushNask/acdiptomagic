@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
@@ -7,15 +7,18 @@ import { toast } from "sonner";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   adminOnly?: boolean;
+  requiresAuth?: boolean;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  adminOnly = false 
+  adminOnly = false,
+  requiresAuth = true
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -100,9 +103,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
+  // Handle auth routes (login/signup)
+  if (!requiresAuth) {
+    if (user) {
+      // If user is already logged in, redirect to appropriate dashboard
+      return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
+    }
+    return <>{children}</>;
+  }
+
+  // Handle protected routes
   if (!user) {
     toast.error("Please log in to access this page");
-    return <Navigate to="/login" replace />;
+    // Save the attempted URL to redirect back after login
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (adminOnly && !isAdmin) {
@@ -110,7 +124,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/dashboard" replace />;
   }
 
-  if (isAdmin && !adminOnly && window.location.pathname === '/dashboard') {
+  // Redirect admin to admin dashboard if trying to access regular dashboard
+  if (isAdmin && !adminOnly && location.pathname === '/dashboard') {
     return <Navigate to="/admin" replace />;
   }
 

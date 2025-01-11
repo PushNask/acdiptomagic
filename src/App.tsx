@@ -11,6 +11,7 @@ import Footer from "@/components/layout/Footer";
 import ChatBot from "@/components/shared/ChatBot";
 import AnnouncementBanner from "@/components/shared/AnnouncementBanner";
 
+// Page imports
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -44,9 +45,9 @@ const App = () => {
       <BrowserRouter>
         <TooltipProvider>
           <div className="min-h-screen flex flex-col">
-            <AnnouncementBanner />
-            <Navbar />
-            <main className="flex-1 pt-[96px]">
+            <AnnouncementBanner className="z-50" />
+            <Navbar className="z-40" />
+            <main className="flex-1 pt-[136px]"> {/* Adjusted to account for announcement bar */}
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
@@ -61,22 +62,44 @@ const App = () => {
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/resources/category/:category" element={<ResourceSales />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
 
-                {/* Protected routes */}
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
+                {/* Auth routes - redirect if already logged in */}
+                <Route 
+                  path="/login" 
+                  element={
+                    <ProtectedRoute requiresAuth={false}>
+                      <Login />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/signup" 
+                  element={
+                    <ProtectedRoute requiresAuth={false}>
+                      <Signup />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                {/* Admin routes */}
-                <Route path="/admin" element={
-                  <ProtectedRoute adminOnly>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } />
+                {/* Protected user routes */}
+                <Route 
+                  path="/dashboard/*" 
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                {/* Protected admin routes */}
+                <Route 
+                  path="/admin/*" 
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
 
                 {/* Catch all route */}
                 <Route path="*" element={<NotFound />} />
