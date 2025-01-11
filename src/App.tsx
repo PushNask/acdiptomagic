@@ -47,22 +47,30 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const currentUser = session?.user;
-      setUser(currentUser ?? null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUser = session?.user;
+        setUser(currentUser ?? null);
 
-      if (currentUser) {
-        // Get the user_type from the profiles table
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', currentUser.id)
-          .single();
-        
-        setIsAdmin(profile?.user_type === 'admin');
+        if (currentUser) {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('user_type')
+            .eq('id', currentUser.id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching profile:', error);
+            setIsAdmin(false);
+          } else {
+            setIsAdmin(profile?.user_type === 'admin');
+          }
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     checkAuth();
@@ -72,14 +80,23 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
       setUser(currentUser ?? null);
 
       if (currentUser) {
-        // Get the user_type from the profiles table
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', currentUser.id)
-          .single();
-        
-        setIsAdmin(profile?.user_type === 'admin');
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('user_type')
+            .eq('id', currentUser.id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching profile:', error);
+            setIsAdmin(false);
+          } else {
+            setIsAdmin(profile?.user_type === 'admin');
+          }
+        } catch (error) {
+          console.error('Profile fetch error:', error);
+          setIsAdmin(false);
+        }
       }
 
       setLoading(false);
@@ -96,12 +113,10 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
     return <Navigate to="/login" replace />;
   }
 
-  // If this is an admin-only route and the user is not an admin
   if (adminOnly && !isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // If the user is an admin and they're trying to access the regular dashboard
   if (isAdmin && !adminOnly && window.location.pathname === '/dashboard') {
     return <Navigate to="/admin" replace />;
   }
