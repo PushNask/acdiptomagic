@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { MenuItem } from "@/types/navigation";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -20,25 +19,7 @@ export const MobileMenu = ({
   onSignOut,
   user,
 }: MobileMenuProps) => {
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkUserType = async () => {
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', user.id)
-          .single();
-
-        if (profile) {
-          setIsAdmin(profile.user_type === 'admin');
-        }
-      }
-    };
-
-    checkUserType();
-  }, [user]);
+  const { isAdmin } = useAdminStatus(user?.id);
 
   if (!isOpen) return null;
 

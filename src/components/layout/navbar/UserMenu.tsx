@@ -7,8 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 interface UserMenuProps {
   user: any;
@@ -17,25 +16,7 @@ interface UserMenuProps {
 }
 
 export const UserMenu = ({ user, onSignOut, navigate }: UserMenuProps) => {
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkUserType = async () => {
-      if (user) {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', user.id)
-          .single();
-
-        if (!error && profile) {
-          setIsAdmin(profile.user_type === 'admin');
-        }
-      }
-    };
-
-    checkUserType();
-  }, [user]);
+  const { isAdmin } = useAdminStatus(user?.id);
 
   if (!user) {
     return (

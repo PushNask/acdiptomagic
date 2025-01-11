@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { MenuItem } from "@/types/navigation";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 interface DesktopMenuProps {
   menuItems: MenuItem[];
@@ -9,29 +8,8 @@ interface DesktopMenuProps {
 }
 
 export const DesktopMenu = ({ menuItems, servicesSubmenu }: DesktopMenuProps) => {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const checkUserType = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      setUser(currentUser);
-
-      if (currentUser) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', currentUser.id)
-          .single();
-
-        if (profile) {
-          setIsAdmin(profile.user_type === 'admin');
-        }
-      }
-    };
-
-    checkUserType();
-  }, []);
+  const { data: { user } } = await supabase.auth.getUser();
+  const { isAdmin } = useAdminStatus(user?.id);
 
   return (
     <div className="hidden md:flex items-center space-x-4">
