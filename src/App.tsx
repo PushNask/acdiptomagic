@@ -4,9 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState } from 'react';
-import { supabase } from "@/integrations/supabase/client";
-import type { User } from '@supabase/supabase-js';
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -39,90 +37,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-const ProtectedRoute = ({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const currentUser = session?.user;
-        setUser(currentUser ?? null);
-
-        if (currentUser) {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('user_type')
-            .eq('id', currentUser.id)
-            .single();
-          
-          if (error) {
-            console.error('Error fetching profile:', error);
-            setIsAdmin(false);
-          } else {
-            setIsAdmin(profile?.user_type === 'admin');
-          }
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
-      const currentUser = session?.user;
-      setUser(currentUser ?? null);
-
-      if (currentUser) {
-        try {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('user_type')
-            .eq('id', currentUser.id)
-            .single();
-          
-          if (error) {
-            console.error('Error fetching profile:', error);
-            setIsAdmin(false);
-          } else {
-            setIsAdmin(profile?.user_type === 'admin');
-          }
-        } catch (error) {
-          console.error('Profile fetch error:', error);
-          setIsAdmin(false);
-        }
-      }
-
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (adminOnly && !isAdmin) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  if (isAdmin && !adminOnly && window.location.pathname === '/dashboard') {
-    return <Navigate to="/admin" replace />;
-  }
-
-  return <>{children}</>;
-};
 
 const App = () => {
   return (
