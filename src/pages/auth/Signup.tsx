@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Lock, User } from "lucide-react";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
+import { Mail, Lock, User } from "lucide-react";
 import { toast } from "sonner";
 
 const Signup = () => {
@@ -24,22 +24,21 @@ const Signup = () => {
     userType: "",
   });
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/dashboard");
-      }
-    });
-  }, [navigate]);
-
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    setLoading(true);
 
     // Validate password match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    // Validate required fields
+    if (!formData.email || !formData.password || !formData.fullName || !formData.userType) {
+      setError("Please fill in all required fields");
       setLoading(false);
       return;
     }
@@ -57,11 +56,25 @@ const Signup = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('duplicate key')) {
+          setError("An account with this email already exists");
+        } else if (error.message.includes('valid email')) {
+          setError("Please enter a valid email address");
+        } else if (error.message.includes('password')) {
+          setError("Password must be at least 6 characters long");
+        } else {
+          setError("Unable to create account. Please try again later.");
+          console.error("Signup error:", error);
+        }
+        return;
+      }
+
       toast.success("Account created successfully! Please check your email to verify your account.");
       navigate("/dashboard");
     } catch (error: any) {
-      setError(error.message);
+      console.error("Signup error:", error);
+      toast.error("Unable to create account. Please try again later or contact support if the problem persists.");
     } finally {
       setLoading(false);
     }
