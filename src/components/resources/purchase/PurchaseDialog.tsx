@@ -16,6 +16,7 @@ interface PurchaseDialogProps {
 const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDialogProps) => {
   const { toast } = useToast();
   const [purchaseCode, setPurchaseCode] = useState("");
+  const [contactInfo, setContactInfo] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [showCodeInput, setShowCodeInput] = useState(false);
 
@@ -40,6 +41,15 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
       return;
     }
 
+    if (!contactInfo) {
+      toast({
+        title: "Contact Information Required",
+        description: "Please enter your email address or phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const codeFormat = /^[A-Z0-9]{8}$/;
     if (!codeFormat.test(purchaseCode)) {
       toast({
@@ -52,19 +62,6 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
 
     setIsVerifying(true);
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) throw sessionError;
-
-      if (!session) {
-        toast({
-          title: "Authentication Required",
-          description: "Please log in to download resources.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       const { data: codeData, error: codeError } = await supabase
         .from('purchase_codes')
         .select('*')
@@ -86,7 +83,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
         .update({
           is_used: true,
           used_at: new Date().toISOString(),
-          used_by_user_id: session.user.id,
+          contact_info: contactInfo,
           used_for_resource_id: selectedResource.id
         })
         .eq('id', codeData.id)
@@ -100,23 +97,6 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
           variant: "destructive",
         });
         return;
-      }
-
-      const { error: purchaseError } = await supabase
-        .from('user_purchases')
-        .insert({
-          user_id: session.user.id,
-          resource_id: selectedResource.id,
-          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
-        });
-
-      if (purchaseError) {
-        console.error('Error creating purchase record:', purchaseError);
-        toast({
-          title: "Warning",
-          description: "Your download will proceed, but there was an issue recording the purchase.",
-          variant: "destructive",
-        });
       }
 
       const link = document.createElement('a');
@@ -133,6 +113,7 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
 
       onOpenChange(false);
       setPurchaseCode("");
+      setContactInfo("");
     } catch (error) {
       console.error('Download error:', error);
       toast({
@@ -166,6 +147,8 @@ const PurchaseDialog = ({ isOpen, onOpenChange, selectedResource }: PurchaseDial
           <PurchaseCodeInput
             purchaseCode={purchaseCode}
             setPurchaseCode={setPurchaseCode}
+            contactInfo={contactInfo}
+            setContactInfo={setContactInfo}
             isVerifying={isVerifying}
             onDownload={handleDownload}
           />
