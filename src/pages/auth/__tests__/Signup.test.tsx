@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { toast } from 'sonner';
 import Signup from '../Signup';
